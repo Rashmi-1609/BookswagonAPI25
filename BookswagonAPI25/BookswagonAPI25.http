@@ -1,0 +1,6 @@
+@BookswagonAPI25_HostAddress = http://localhost:5111
+
+GET {{BookswagonAPI25_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

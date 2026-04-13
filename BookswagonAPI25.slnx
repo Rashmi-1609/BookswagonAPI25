@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="AuthorService.Api/AuthorService.Api.csproj" Id="9fe616b3-a64e-4928-9636-99edd0cf6591" />
+  <Project Path="BookswagonAPI25/BookswagonAPI25.csproj" />
+  <Project Path="Gateway.Yarp/Gateway.Yarp.csproj" Id="5cedf766-fdc6-4796-960c-767c40bd5329" />
+</Solution>
