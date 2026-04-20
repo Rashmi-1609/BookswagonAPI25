@@ -17,7 +17,10 @@ public class ProductReview
     public int ProductId { get; set; }
 
     [Column("RecomendThis")]
-    public bool RecommendThis { get; set; }
+    public bool? RecommendThis { get; set; }
+
+    [Column("Review_Title")]
+    public string? ReviewTitle { get; set; } = string.Empty;
 
     [Column("Status")]
     public int ReviewStatus { get; set; }
@@ -37,7 +40,6 @@ public class ProductReview
     public string PostDate => $"{(DateTime.Now - DateCreated).Days} Days Ago";
 
     public int Rating { get; set; }
-    public string ReviewBy { get; set; } = string.Empty;
-    public string ReviewTitle { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
+    public string? ReviewBy { get; set; } = string.Empty;
+    public string? Description { get; set; } = string.Empty;
 }
