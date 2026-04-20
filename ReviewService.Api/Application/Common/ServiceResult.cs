@@ -1,5 +1,6 @@
 ﻿namespace ReviewService.Api.Application.Common;
 
+// A generic wrapper for all API responses.
 public class ServiceResult<T>
 {
     public bool IsSuccess { get; private set; }
