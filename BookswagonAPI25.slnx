@@ -3,4 +3,5 @@
   <Project Path="BookswagonAPI25/BookswagonAPI25.csproj" />
   <Project Path="Gateway.Yarp/Gateway.Yarp.csproj" Id="5cedf766-fdc6-4796-960c-767c40bd5329" />
   <Project Path="PublisherService.Api/PublisherService.Api.csproj" />
+  <Project Path="ReviewService.Api/ReviewService.Api.csproj" />
 </Solution>
