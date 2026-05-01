@@ -15,17 +15,23 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // 2. Dependency Injection
 // Infrastructure Layer
 builder.Services.AddScoped<IProductReviewRepository, ProductReviewRepository>();
+builder.Services.AddScoped<IUserProfileReviewRepository, UserProfileReviewRepository>();
+
 // Application Layer
 builder.Services.AddScoped<IProductReviewService, ProductReviewService>();
+builder.Services.AddScoped<IUserProfileReviewService, UserProfileReviewService>();
 
 // 3. Hot Chocolate GraphQL Setup
 builder.Services
     .AddGraphQLServer()
-    .AddQueryType<ProductReviewQuery>()
+    .AddQueryType(d => d.Name("Query")) // Creates a base Query root
+    .AddTypeExtension<ProductReviewQuery>()
+    .AddTypeExtension<UserProfileReviewQuery>()
     // These allow the client to use filtering/sorting if we add them later
     .AddFiltering()
     .AddSorting()
     .AddProjections();
+
 
 var app = builder.Build();
 
