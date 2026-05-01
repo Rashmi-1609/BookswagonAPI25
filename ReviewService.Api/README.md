@@ -155,7 +155,9 @@ UserProfileReviewDto (Parent: User Profile)
 ├── ReviewBy, UserEmail, TotalReview, ReaderType
 └── ReviewedBooks: List<ReviewedBookDto>
     ├── ISBN13, ProductTitle, ProductTitleUrl, ProductImageLocation
-    ├── Rating, DateCreated, ReaderSpoiler, ReviewTitle, Description
+    ├── Rating, ReaderSpoiler, ReviewTitle, Description
+    ├── DateCreated (DateTime, [GraphQLIgnore] — hidden from client)
+    ├── PostDate (computed: "X Years/Months/Days Ago" or "Today")
     └── ProductReviewImages: List<ProductReviewImageDto>
         ├── ImageCaption
         └── ImageLocation
@@ -206,7 +208,7 @@ A flat **"Loading Dock"** class designed solely to catch the raw, denormalized o
 2. Calls `EXEC [dbo].[SProc_GetUserProfileReviews_WithImages]` with `SqlParameter` objects.
 3. Maps the flat SP result rows into the nested `UserProfileReviewDto` hierarchy:
    - User profile data extracted from the first row.
-   - Each row mapped to a `ReviewedBookDto` with formatted date (`"MMM dd, yyyy"`).
+   - Each row mapped to a `ReviewedBookDto` — `Date_Created` is passed as raw `DateTime` (the DTO's computed `PostDate` property handles display formatting).
    - `ReviewImagesJson` column deserialized via `System.Text.Json` into `List<ProductReviewImageDto>`.
 
 ---
@@ -249,7 +251,7 @@ Both resolvers follow the same pattern:
 | **`[Service]` Attribute Injection** | Used in GraphQL query resolvers instead of constructor injection to avoid `ObjectDisposedException` issues caused by Hot Chocolate's singleton-like resolver lifecycle. |
 | **ServiceResult Pattern** | Standardized success/failure wrappers with factory methods. Avoids computationally expensive exceptions for expected business rule violations. |
 | **"Loading Dock" SP Mapping** | A flat `UserProfileReviewSpResult` class catches raw stored procedure output before it's manually assembled into the nested DTO hierarchy. This keeps the domain clean. |
-| **Domain Model UI Calculations** | `[NotMapped]` properties on domain entities perform simple on-the-fly calculations for UI presentation (e.g., `PostDate` → `"X Days Ago"`). |
+| **DTO-Level Computed Properties** | `[GraphQLIgnore]` hides raw `DateTime` fields from the client, while computed `PostDate` properties on DTOs dynamically format dates into smart "time ago" strings (`"X Years Ago"`, `"X Months Ago"`, `"X Days Ago"`, or `"Today"`) using `DateTime.UtcNow`. |
 | **C# 12 Primary Constructors** | Adopted exclusively to reduce boilerplate and prevent constructor-related bugs. |
 | **No MediatR** | Excluded to avoid "double-abstraction" — Hot Chocolate natively serves as the mediator for routing requests. |
 | **Empty State Handling** | When a user has zero reviews, the service returns `Success(new UserProfileReviewDto())` instead of an error, preventing frontend crashes. |
@@ -301,7 +303,7 @@ sequenceDiagram
     Repo->>DB: EXEC SProc_GetUserProfileReviews_WithImages<br>@Id_CustProfile=276, @PageNo=0, @NoOfRow=4
     DB-->>Repo: Flat rows (UserProfileReviewSpResult[])
     Repo->>Repo: Extract user profile from first row
-    Repo->>Repo: Map each row → ReviewedBookDto<br>(format date: "MMM dd, yyyy")
+    Repo->>Repo: Map each row → ReviewedBookDto<br>(pass raw DateTime, PostDate computed in DTO)
     Repo->>Repo: Deserialize ReviewImagesJson → List of ProductReviewImageDto
     Repo-->>Service: Nested UserProfileReviewDto
     Service-->>Query: ServiceResult.Success(dto)
@@ -387,7 +389,7 @@ query{
       productTitleUrl
       productImageLocation
       rating
-      dateCreated
+      postDate
       readerSpoiler
       reviewTitle
       description
@@ -420,7 +422,8 @@ query{
 | ↳ `productTitleUrl` | `String` | URL-friendly title slug |
 | ↳ `productImageLocation` | `String` | Book cover image URL |
 | ↳ `rating` | `Int` | Rating given (1–5) |
-| ↳ `dateCreated` | `String` | Formatted date (e.g., `"Oct 12, 2023"`) |
+| ↳ `dateCreated` | — | `[GraphQLIgnore]` — hidden from client, used internally |
+| ↳ `postDate` | `String` | Computed "time ago" string (e.g., `"2 Years Ago"`, `"3 Months Ago"`, `"5 Days Ago"`, `"Today"`) |
 | ↳ `readerSpoiler` | `String` | Spoiler flag/content |
 | ↳ `reviewTitle` | `String` | Title of the review |
 | ↳ `description` | `String` | Full review body text |
