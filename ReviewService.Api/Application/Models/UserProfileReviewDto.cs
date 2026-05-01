@@ -6,8 +6,11 @@ namespace ReviewService.Api.Application.Models;
 public class UserProfileReviewDto
 {
     public string? ReviewBy { get; set; }
+
     public string? UserEmail { get; set; }
+
     public int TotalReview { get; set; }
+
     public string? ReaderType { get; set; }
 
     // Nested array of reviewed books
@@ -18,14 +21,41 @@ public class UserProfileReviewDto
 public class ReviewedBookDto
 {
     public string? ISBN13 { get; set; }
+
     public string? ProductTitle { get; set; }
+
     public string? ProductTitleUrl { get; set; }
+
     public string? ProductImageLocation { get; set; }
 
     public int Rating { get; set; }
-    public string? DateCreated { get; set; } // We will format this nicely in the Repo (e.g., "Oct 12, 2023")
+
+    [GraphQLIgnore] // The frontend will never see this!
+    public DateTime DateCreated { get; set; }
+
+    // passed to the frontend as a nicely formatted "time ago" string
+    public string PostDate
+    {
+        get
+        {
+            var timeSpan = DateTime.UtcNow - DateCreated;
+
+            if (timeSpan.TotalDays >= 365)
+                return $"{(int)(timeSpan.TotalDays / 365)} Years Ago";
+
+            if (timeSpan.TotalDays >= 30)
+                return $"{(int)(timeSpan.TotalDays / 30)} Months Ago";
+
+            if (timeSpan.TotalDays >= 1)
+                return $"{(int)timeSpan.TotalDays} Days Ago";
+
+            return "Today";
+        }
+    }
     public string? ReaderSpoiler { get; set; }
+
     public string? ReviewTitle { get; set; }
+
     public string? Description { get; set; }
 
     // Nested array of images
