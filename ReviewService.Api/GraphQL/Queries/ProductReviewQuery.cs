@@ -3,6 +3,7 @@ using ReviewService.Api.Application.Models;
 
 namespace ReviewService.Api.GraphQL.Queries;
 
+[ExtendObjectType("Query")]
 public class ProductReviewQuery
 {
     [GraphQLName("productReviewDetail")]
