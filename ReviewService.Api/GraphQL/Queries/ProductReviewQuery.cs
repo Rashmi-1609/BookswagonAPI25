@@ -8,7 +8,7 @@ public class ProductReviewQuery
 {
     [GraphQLName("productReviewDetail")]
     [GraphQLDescription("Retrieves the aggregated summary and list of active product reviews by Product ID.")]
-    public async Task<ProductReviewSummary?> GetProductReviewDetailAsync(
+    public async Task<ProductReviewSectionDto?> GetProductReviewDetailAsync(
         int productId,
         [Service] IProductReviewService reviewService) // Method Injection!
     {

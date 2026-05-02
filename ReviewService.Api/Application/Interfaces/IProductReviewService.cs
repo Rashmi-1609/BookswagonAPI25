@@ -5,5 +5,5 @@ namespace ReviewService.Api.Application.Interfaces;
 
 public interface IProductReviewService
 {
-    Task<ServiceResult<ProductReviewSummary>> GetReviewSummaryAsync(int productId);
+    Task<ServiceResult<ProductReviewSectionDto>> GetReviewSummaryAsync(int productId);
 }

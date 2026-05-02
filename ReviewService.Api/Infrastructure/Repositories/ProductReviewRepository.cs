@@ -7,7 +7,7 @@ namespace ReviewService.Api.Infrastructure.Repositories;
 
 public class ProductReviewRepository(AppDbContext context) : IProductReviewRepository
 {
-    public async Task<ProductReviewSummary?> GetReviewSummaryByProductIdAsync(int productId)
+    public async Task<ProductReviewSectionDto?> GetReviewSummaryByProductIdAsync(int productId)
     {
         // base query with our strict business rules
         var query = context.ProductReviews
@@ -22,7 +22,7 @@ public class ProductReviewRepository(AppDbContext context) : IProductReviewRepos
         // Guard Clause: If there are no reviews, return an empty summary
         if (totalCount == 0)
         {
-            return new ProductReviewSummary
+            return new ProductReviewSectionDto
             {
                 TotalCount = 0,
                 AvgRating = 0,
@@ -34,11 +34,21 @@ public class ProductReviewRepository(AppDbContext context) : IProductReviewRepos
         // (We do this after the count check because AverageAsync throws an error on empty sequences)
         var avgRating = await query.AverageAsync(p => p.Rating);
 
-        // here we Fetch the actual list of reviews
-        var reviews = await query.ToListAsync();
+        // Map directly from Entity to the safe DTO in SQL
+        var reviews = await query
+            .Select(p => new ReviewCardDto
+            {
+                Rating = p.Rating,
+                ReviewBy = p.ReviewBy,
+                DateCreated = p.DateCreated,
+                ReviewTitle = p.ReviewTitle,
+                Description = p.Description,
+                RecommendThis = p.RecommendThis
+            })
+            .ToListAsync();
 
-        // 6. Assemble and return the final DTO
-        return new ProductReviewSummary
+        // Assemble and return the final DTO
+        return new ProductReviewSectionDto
         {
             TotalRating = 5, // Hardcoded per your requirements
             AvgRating = Math.Round(avgRating, 1), // Rounding to 1 decimal place (e.g., 4.2)
