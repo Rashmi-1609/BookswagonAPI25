@@ -30,28 +30,8 @@ public class ReviewedBookDto
 
     public int Rating { get; set; }
 
-    [GraphQLIgnore] // The frontend will never see this!
     public DateTime DateCreated { get; set; }
 
-    // passed to the frontend as a nicely formatted "time ago" string
-    public string PostDate
-    {
-        get
-        {
-            var timeSpan = DateTime.UtcNow - DateCreated;
-
-            if (timeSpan.TotalDays >= 365)
-                return $"{(int)(timeSpan.TotalDays / 365)} Years Ago";
-
-            if (timeSpan.TotalDays >= 30)
-                return $"{(int)(timeSpan.TotalDays / 30)} Months Ago";
-
-            if (timeSpan.TotalDays >= 1)
-                return $"{(int)timeSpan.TotalDays} Days Ago";
-
-            return "Today";
-        }
-    }
     public string? ReaderSpoiler { get; set; }
 
     public string? ReviewTitle { get; set; }

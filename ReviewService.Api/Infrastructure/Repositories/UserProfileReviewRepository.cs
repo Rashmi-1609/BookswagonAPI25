@@ -52,7 +52,7 @@ public class UserProfileReviewRepository(AppDbContext context) : IUserProfileRev
                 ProductTitleUrl = r.Product_TitleUrl,
                 ProductImageLocation = r.Image_Location,
                 Rating = r.Rating,
-                DateCreated = r.Date_Created, // postDate will dyanamically format this into a "time ago" string in the DTO
+                DateCreated = r.Date_Created,
                 ReaderSpoiler = r.ReaderSpoilers,
                 ReviewTitle = r.Review_Title,
                 Description = r.Description,
