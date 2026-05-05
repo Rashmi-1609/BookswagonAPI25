@@ -1,5 +1,16 @@
 <Solution>
-  <Project Path="AuthorService.Api/AuthorService.Api.csproj" Id="9fe616b3-a64e-4928-9636-99edd0cf6591" />
-  <Project Path="BookswagonAPI25/BookswagonAPI25.csproj" />
+  <Folder Name="/AuthorService/">
+    <Project Path="AuthorService/AuthorService.Api/AuthorService.Api.csproj" Id="60a87e63-24c3-4d5a-a3e2-d6a8a40cdfc5">
+      <BuildDependency Project="AuthorService/AuthorService.Application/AuthorService.Application.csproj" />
+      <BuildDependency Project="AuthorService/AuthorService.Infrastructure/AuthorService.Infrastructure.csproj" />
+    </Project>
+    <Project Path="AuthorService/AuthorService.Application/AuthorService.Application.csproj" Id="cffff0e4-3b5e-468d-9e02-918000fddc92">
+      <BuildDependency Project="AuthorService/AuthorService.Domain/AuthorService.Domain.csproj" />
+    </Project>
+    <Project Path="AuthorService/AuthorService.Domain/AuthorService.Domain.csproj" Id="5df79cc8-00e9-4155-9425-dbf4d3e7c7df" />
+    <Project Path="AuthorService/AuthorService.Infrastructure/AuthorService.Infrastructure.csproj" Id="0851db02-0049-4a56-a814-5ab8a0abc241">
+      <BuildDependency Project="AuthorService/AuthorService.Domain/AuthorService.Domain.csproj" />
+    </Project>
+  </Folder>
   <Project Path="Gateway.Yarp/Gateway.Yarp.csproj" Id="5cedf766-fdc6-4796-960c-767c40bd5329" />
 </Solution>
