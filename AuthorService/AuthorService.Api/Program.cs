@@ -6,11 +6,16 @@ using AuthorService.Infrastructure.Data.Repositories;
 using HotChocolate.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using AuthorService.Application.Services;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Shared.Authentication.Extensions; 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Use shared authentication
+builder.Services.AddSharedAuthentication(builder.Configuration);
 
+// Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -36,6 +41,22 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Add JWT Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
 // Add database context (EF Core)
 builder.Services.AddPooledDbContextFactory<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("AuthorSchemaDB")));
@@ -52,14 +73,18 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.UseSwagger();
-   // app.UseSwaggerUI();
+    // app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
 app.UseCors();
+// Add authentication and authorization middleware
+app.UseAuthentication(); // Ensure this is added before UseAuthorization
 app.UseAuthorization();
 app.MapControllers();
-app.MapGraphQL("/graphql");
+
+// Protect the GraphQL endpoint
+app.MapGraphQL("/graphql").RequireAuthorization(); // Add RequireAuthorization to secure the endpoint
 // Configure the HTTP request pipeline.
 
 app.Run();

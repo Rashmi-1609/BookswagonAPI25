@@ -1,5 +1,6 @@
 ﻿using AuthorService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Shared.Authentication.Entities;
 
 namespace AuthorService.Infrastructure.Data
 {
@@ -17,6 +18,11 @@ namespace AuthorService.Infrastructure.Data
         /// Gets or sets the Authors DbSet.
         /// </summary>
         public DbSet<Author> Authors { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the UserTokens DbSet.
+        /// </summary>
+        public DbSet<UserToken> UserTokens { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

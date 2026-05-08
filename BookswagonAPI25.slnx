@@ -12,5 +12,8 @@
       <BuildDependency Project="AuthorService/AuthorService.Domain/AuthorService.Domain.csproj" />
     </Project>
   </Folder>
+  <Folder Name="/Shared/">
+    <Project Path="Shared/Shared.Authentication/Shared.Authentication.csproj" Id="3147eda7-96ad-428e-86ca-81a8a99a9b90" />
+  </Folder>
   <Project Path="Gateway.Yarp/Gateway.Yarp.csproj" Id="5cedf766-fdc6-4796-960c-767c40bd5329" />
 </Solution>

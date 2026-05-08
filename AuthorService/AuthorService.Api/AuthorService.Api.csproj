@@ -11,6 +11,7 @@
     <PackageReference Include="HotChocolate.AspNetCore" Version="16.0.0" />
     <PackageReference Include="HotChocolate.Data.EntityFramework" Version="16.0.0" />
     <PackageReference Include="HotChocolate.Types" Version="16.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.7" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.1.7" />
@@ -22,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Shared\Shared.Authentication\Shared.Authentication.csproj" />
     <ProjectReference Include="..\AuthorService.Application\AuthorService.Application.csproj" />
     <ProjectReference Include="..\AuthorService.Infrastructure\AuthorService.Infrastructure.csproj" />
   </ItemGroup>
