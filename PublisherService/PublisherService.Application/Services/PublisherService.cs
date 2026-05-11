@@ -1,5 +1,5 @@
 ﻿using PublisherService.Application.Interfaces;
-using PublisherService.Domain.Entities;
+using PublisherService.Application.DTO;
 using PublisherService.Domain.Interfaces;
 
 
@@ -10,7 +10,7 @@ namespace PublisherService.Application.Services;
 /// </summary>
 public class PublisherService(IPublisherRepository repository) : IPublisherService
 {
-    public async Task<Publisher?> GetPublisherByIdAsync(int id)
+    public async Task<PublisherDto?> GetPublisherByIdAsync(int id)
     {
         // Rule -> IDs must be positive
         if (id <= 0)
@@ -18,17 +18,41 @@ public class PublisherService(IPublisherRepository repository) : IPublisherServi
             return null;
         }
 
-        return await repository.GetPublisherByIdAsync(id);
+        var publisher = await repository.GetPublisherByIdAsync(id);
+
+        if (publisher == null) return null;
+
+        return new PublisherDto
+        {
+            PublisherId = publisher.PublisherId,
+            CompanyName = publisher.CompanyName,
+            PublisherImage = publisher.PublisherImage,
+            Description = publisher.Description,
+            MetaDescription = publisher.MetaDescription,
+            MetaKeywords = publisher.MetaKeywords,
+            PageTitle = publisher.PageTitle
+        };
     }
 
-    public IQueryable<Publisher> GetPublishersByName(string name)
+    public IQueryable<PublisherDto> GetPublishersByName(string name)
     {
         // Rule -> Don't search if name is empty
         if (string.IsNullOrWhiteSpace(name))
         {
-            return Enumerable.Empty<Publisher>().AsQueryable();
+            return Enumerable.Empty<PublisherDto>().AsQueryable();
         }
 
-        return repository.GetPublishersByName(name);
+        // Map IQueryable<Entity> -> IQueryable<DTO> using Select
+        // EF Core will translate this into a highly optimized SQL SELECT statement!
+        return repository.GetPublishersByName(name).Select(p => new PublisherDto
+        {
+            PublisherId = p.PublisherId,
+            CompanyName = p.CompanyName,
+            PublisherImage = p.PublisherImage,
+            Description = p.Description,
+            MetaDescription = p.MetaDescription,
+            MetaKeywords = p.MetaKeywords,
+            PageTitle = p.PageTitle
+        });
     }
 }

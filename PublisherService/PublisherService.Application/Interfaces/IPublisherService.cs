@@ -1,4 +1,4 @@
-﻿using PublisherService.Domain.Entities;
+﻿using PublisherService.Application.DTO;
 
 namespace PublisherService.Application.Interfaces;
 
@@ -12,12 +12,12 @@ public interface IPublisherService
     /// </summary>
     /// <param name="id">The unique ID of the publisher.</param>
     /// <returns>The Publisher entity, or null if validation fails or it is not found.</returns>
-    Task<Publisher?> GetPublisherByIdAsync(int id);
+    Task<PublisherDto?> GetPublisherByIdAsync(int id);
 
     /// <summary>
     /// Validates the search string and retrieves matching publishers.
     /// </summary>
     /// <param name="name">The search string.</param>
     /// <returns>An IQueryable of matching publishers, or an empty query if validation fails.</returns>
-    IQueryable<Publisher> GetPublishersByName(string name);
+    IQueryable<PublisherDto> GetPublishersByName(string name);
 }
