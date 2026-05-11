@@ -1,4 +1,4 @@
-﻿using HotChocolate.Execution;
+using HotChocolate.Execution;
 
 namespace PublisherService.Api.GraphQL.Filters;
 
@@ -6,7 +6,7 @@ namespace PublisherService.Api.GraphQL.Filters;
 /// Intercepts all GraphQL errors globally before they are sent to the client,
 /// logging the real technical issue and sanitizing the output for security.
 /// </summary>
-public class GraphQLErrorFilter(ILogger<GraphQLErrorFilter> logger) : IErrorFilter
+public class GraphQLErrorFilter : IErrorFilter
 {
     public IError OnError(IError error)
     {
@@ -18,10 +18,10 @@ public class GraphQLErrorFilter(ILogger<GraphQLErrorFilter> logger) : IErrorFilt
         }
 
         // 2. For all unexpected crashes (like database timeouts or null references),
-        // log the scary technical details securely for the backend team.
+        // log the scary technical details to the console for the backend team.
         if (error.Exception is not null)
         {
-            logger.LogError(error.Exception, "Unhandled GraphQL execution error: {Message}", error.Exception.Message);
+            Console.Error.WriteLine($"[GraphQL Error] {error.Exception.GetType().Name}: {error.Exception.Message}");
         }
 
         // 3. Hide the stack trace and DB details from the frontend React team/customers,

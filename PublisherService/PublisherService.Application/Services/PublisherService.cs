@@ -34,17 +34,19 @@ public class PublisherService(IPublisherRepository repository) : IPublisherServi
         };
     }
 
-    public IQueryable<PublisherDto> GetPublishersByName(string name)
+    public async Task<List<PublisherDto>> GetPublishersByNameAsync(string name)
     {
         // Rule -> Don't search if name is empty
         if (string.IsNullOrWhiteSpace(name))
         {
-            return Enumerable.Empty<PublisherDto>().AsQueryable();
+            return new List<PublisherDto>();
         }
 
-        // Map IQueryable<Entity> -> IQueryable<DTO> using Select
+        // Map List<Entity> -> List<DTO> using Select
         // EF Core will translate this into a highly optimized SQL SELECT statement!
-        return repository.GetPublishersByName(name).Select(p => new PublisherDto
+        var publishers = await repository.GetPublishersByNameAsync(name);
+
+        return publishers.Select(p => new PublisherDto
         {
             PublisherId = p.PublisherId,
             CompanyName = p.CompanyName,
@@ -53,6 +55,6 @@ public class PublisherService(IPublisherRepository repository) : IPublisherServi
             MetaDescription = p.MetaDescription,
             MetaKeywords = p.MetaKeywords,
             PageTitle = p.PageTitle
-        });
+        }).ToList();
     }
 }

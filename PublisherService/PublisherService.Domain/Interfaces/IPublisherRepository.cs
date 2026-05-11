@@ -18,6 +18,6 @@ public interface IPublisherRepository
     /// Searches for publishers based on a fuzzy match of their company name.
     /// </summary>
     /// <param name="name">The search string to match against company names.</param>
-    /// <returns>An IQueryable of matching publishers for deferred execution.</returns>
-    IQueryable<Publisher> GetPublishersByName(string name);
+    /// <returns>A list of matching publishers for deferred execution.</returns>
+    Task<List<Publisher>> GetPublishersByNameAsync(string name);
 }

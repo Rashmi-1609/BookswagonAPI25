@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PublisherService.Domain.Entities;
 using PublisherService.Domain.Interfaces;
 
@@ -18,11 +15,12 @@ public class PublisherRepository(ApplicationDbContext context) : IPublisherRepos
             .FirstOrDefaultAsync(p => p.PublisherId == id);
     }
 
-    public IQueryable<Publisher> GetPublishersByName(string name)
+    public async Task<List<Publisher>> GetPublishersByNameAsync(string name)
     {
-        // Fuzzy search using LIKE matching your uploaded logic
-        return context.Publishers
+        // Search using LIKE matching your uploaded logic
+        return await context.Publishers
             .Where(p => EF.Functions.Like(p.CompanyName, $"%{name}%"))
-            .OrderBy(p => p.CompanyName);
+            .OrderBy(p => p.CompanyName)
+            .ToListAsync();
     }
 }

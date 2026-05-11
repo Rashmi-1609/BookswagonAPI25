@@ -1,4 +1,4 @@
-﻿using PublisherService.Application.Interfaces;
+using PublisherService.Application.Interfaces;
 using PublisherService.Application.DTO;
 
 namespace PublisherService.Api.GraphQL.Queries;
@@ -6,6 +6,7 @@ namespace PublisherService.Api.GraphQL.Queries;
 /// <summary>
 /// The entry point for all read operations regarding Publishers.
 /// </summary>
+[ExtendObjectType("Query")]
 public class PublisherQuery
 {
     // --- QUERY: GET BY ID ---
@@ -34,12 +35,12 @@ public class PublisherQuery
     [UseProjection] // Allows the client to pick specific columns to fetch from the DB
     [UseFiltering]  // Allows the client to add custom 'where' clauses
     [UseSorting]    // Allows the client to sort the results
-    public IQueryable<PublisherDto> GetPublishersByName(
+    public async Task<List<PublisherDto>> GetPublishersByName(
         string name,
         [Service] IPublisherService publisherService)
     {
         // If the service logic fails (e.g., empty string), it safely returns an empty IQueryable.
         // HotChocolate intercepts this IQueryable and translates it perfectly into a SQL LIMIT/OFFSET query!
-        return publisherService.GetPublishersByName(name);
+        return await publisherService.GetPublishersByNameAsync(name);
     }
 }

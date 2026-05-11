@@ -18,6 +18,6 @@ public interface IPublisherService
     /// Validates the search string and retrieves matching publishers.
     /// </summary>
     /// <param name="name">The search string.</param>
-    /// <returns>An IQueryable of matching publishers, or an empty query if validation fails.</returns>
-    IQueryable<PublisherDto> GetPublishersByName(string name);
+    /// <returns>A list of matching publishers, or an empty list if validation fails.</returns>
+    Task<List<PublisherDto>> GetPublishersByNameAsync(string name);
 }

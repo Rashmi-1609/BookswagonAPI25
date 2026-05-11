@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 
@@ -15,16 +15,14 @@ public class Publisher
     [Column("ID_Publisher")]
     public int PublisherId { get; set; }
 
-    [Required]
     [Column("Company_Name")]
-    public string CompanyName { get; set; } = string.Empty;
+    public string? CompanyName { get; set; }
 
     [Column("PublisherImage")]
     public string? PublisherImage { get; set; }
 
-    [Required]
     [Column("Description")]
-    public string Description { get; set; } = string.Empty;
+    public string? Description { get; set; }
 
     [Column("PageTitle")]
     public string? PageTitle { get; set; }
