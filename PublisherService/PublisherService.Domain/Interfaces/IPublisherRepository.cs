@@ -12,7 +12,7 @@ public interface IPublisherRepository
     /// </summary>
     /// <param name="id">The unique ID of the publisher.</param>
     /// <returns>The Publisher entity if found; otherwise, null.</returns>
-    Task<Publisher?> GetPublisherByIdAsync(long id);
+    Task<Publisher?> GetPublisherByIdAsync(int id);
 
     /// <summary>
     /// Searches for publishers based on a fuzzy match of their company name.
