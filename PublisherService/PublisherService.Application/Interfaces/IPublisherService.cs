@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using PublisherService.Domain.Entities;
+﻿using PublisherService.Domain.Entities;
 
 namespace PublisherService.Application.Interfaces;
 
