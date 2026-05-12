@@ -64,23 +64,23 @@ graph TD
     %% Bright link styles for better visibility
     linkStyle default stroke:#888,stroke-width:2px;
 
-    Client((GraphQL Client)):::client -.->|Queries| Pres
+    Client((GraphQL Client)):::client -.->|"Queries"| Pres
 
-    subgraph Architecture [PublisherService Clean Architecture Flow]
+    subgraph Architecture ["PublisherService Clean Architecture Flow"]
         style Architecture fill:transparent,stroke:#555,stroke-width:2px,stroke-dasharray: 5 5;
 
-        Pres[Presentation Layer<br>Hot Chocolate]:::pres
-        App[Application Layer<br>Interfaces / Logic]:::app
-        Infra[Infrastructure Layer<br>EF Core]:::infra
-        Domain[Domain Layer<br>Entities]:::domain
+        Pres["Presentation Layer<br>Hot Chocolate"]:::pres
+        App["Application Layer<br>Interfaces / Logic"]:::app
+        Infra["Infrastructure Layer<br>EF Core"]:::infra
+        Domain["Domain Layer<br>Entities"]:::domain
 
-        Pres -->|Injects Services| App
-        App -->|Uses| Domain
-        Infra -.->|Implements Interfaces| App
-        Infra -->|Maps to| Domain
+        Pres -->|"Injects Services"| App
+        App -->|"Uses"| Domain
+        Infra -.->|"Implements Interfaces"| App
+        Infra -->|"Maps to"| Domain
     end
 
-    Infra -->|SQL Queries| DB[(Database<br>SQL Server)]:::ext
+    Infra -->|"SQL Queries"| DB[(Database<br>SQL Server)]:::ext
 ```
 
 ### Layer-by-Layer Breakdown
@@ -192,15 +192,15 @@ sequenceDiagram
     participant Repo as PublisherRepository
     participant DB as SQL Server
 
-    Client->>Query: publisherById(id: 1)
-    Query->>Service: GetPublisherByIdAsync(1)
-    Service->>Service: Guard: id > 0 ✅
-    Service->>Repo: GetPublisherByIdAsync(1)
-    Repo->>DB: SELECT FROM Table_Publisher WHERE ID_Publisher=1
-    DB-->>Repo: Raw EF Core entity
-    Repo-->>Service: Publisher entity
-    Service-->>Query: PublisherDto
-    Query-->>Client: JSON { publisherId, companyName, ... }
+    Client->>Query: "publisherById(id: 1)"
+    Query->>Service: "GetPublisherByIdAsync(1)"
+    Service->>Service: "Guard: id > 0 ✅"
+    Service->>Repo: "GetPublisherByIdAsync(1)"
+    Repo->>DB: "SELECT FROM Table_Publisher WHERE ID_Publisher=1"
+    DB-->>Repo: "Raw EF Core entity"
+    Repo-->>Service: "Publisher entity"
+    Service-->>Query: "PublisherDto"
+    Query-->>Client: "JSON { publisherId, companyName, ... }"
 ```
 
 ### Flow 2: `searchPublishers` Query
@@ -213,15 +213,15 @@ sequenceDiagram
     participant Repo as PublisherRepository
     participant DB as SQL Server
 
-    Client->>Query: searchPublishers(name: "Penguin")
-    Query->>Service: GetPublishersByNameAsync("Penguin")
-    Service->>Service: Guard: name not empty ✅
-    Service->>Repo: GetPublishersByNameAsync("Penguin")
-    Repo->>DB: SELECT FROM Table_Publisher WHERE Company_Name LIKE '%Penguin%'
-    DB-->>Repo: List of entities
-    Repo-->>Service: List<Publisher>
-    Service-->>Query: List<PublisherDto>
-    Query-->>Client: JSON array of publishers
+    Client->>Query: "searchPublishers(name: 'Penguin')"
+    Query->>Service: "GetPublishersByNameAsync('Penguin')"
+    Service->>Service: "Guard: name not empty ✅"
+    Service->>Repo: "GetPublishersByNameAsync('Penguin')"
+    Repo->>DB: "SELECT FROM Table_Publisher WHERE Company_Name LIKE '%Penguin%'"
+    DB-->>Repo: "List of entities"
+    Repo-->>Service: "List<Publisher>"
+    Service-->>Query: "List<PublisherDto>"
+    Query-->>Client: "JSON array of publishers"
 ```
 
 ---
