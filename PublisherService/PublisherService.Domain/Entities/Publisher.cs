@@ -15,8 +15,9 @@ public class Publisher
     [Column("ID_Publisher")]
     public int PublisherId { get; set; }
 
+    [Required]
     [Column("Company_Name")]
-    public string? CompanyName { get; set; }
+    public string CompanyName { get; set; } = string.Empty;
 
     [Column("PublisherImage")]
     public string? PublisherImage { get; set; }
