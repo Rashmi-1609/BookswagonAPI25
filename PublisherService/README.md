@@ -26,8 +26,7 @@ PublisherService/
 │   ├── DTO/
 │   │   └── PublisherDto.cs             ← Data Transfer Object for Publisher
 │   ├── Interfaces/
-│   │   ├── IPublisherService.cs        ← Service contract
-│   │   └── IPublisherRepository.cs     ← Repository contract (Domain/Interfaces if strict, but placed here or Domain)
+│   │   └── IPublisherService.cs        ← Service contract
 │   └── Services/
 │       └── PublisherService.cs         ← Business logic + validation
 │
@@ -35,7 +34,7 @@ PublisherService/
 │   ├── Entities/
 │   │   └── Publisher.cs                ← EF Core entity mapped to legacy table
 │   └── Interfaces/
-│       └── IPublisherRepository.cs     ← Repository interface (as per investigation)
+│       └── IPublisherRepository.cs     ← Repository contract
 │
 └── PublisherService.Infrastructure/    🟫 INFRASTRUCTURE LAYER
     ├── Data/
