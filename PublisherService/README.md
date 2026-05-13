@@ -95,7 +95,7 @@ The absolute core of the application. Contains **zero dependencies** on any othe
 | C# Property | DB Column | Notes |
 |---|---|---|
 | `PublisherId` | `ID_Publisher` | Primary Key |
-| `CompanyName` | `Company_Name` | Nullable string |
+| `CompanyName` | `Company_Name` | Required string |
 | `PublisherImage`| `PublisherImage`| |
 | `Description` | `Description` | |
 | `PageTitle` | `PageTitle` | |
