@@ -1,4 +1,4 @@
-﻿using PublisherService.Application.DTO;
+using PublisherService.Application.DTO;
 
 namespace PublisherService.Application.Interfaces;
 
@@ -18,6 +18,8 @@ public interface IPublisherService
     /// Validates the search string and retrieves matching publishers.
     /// </summary>
     /// <param name="name">The search string.</param>
+    /// <param name="pageNumber">The page number.</param>
+    /// <param name="pageSize">The page size.</param>
     /// <returns>A list of matching publishers, or an empty list if validation fails.</returns>
-    Task<List<PublisherDto>> GetPublishersByNameAsync(string name);
+    Task<List<PublisherDto>> GetPublishersByNameAsync(string name, int pageNumber = 1, int pageSize = 10);
 }
