@@ -365,3 +365,6 @@ FodyWeavers.xsd
 # Ignore appsettings.json files
 AuthorService/AuthorService.Api/appsettings.json
 AuthorService/AuthorService.Api/appsettings.*.json
+
+PublisherService/PublisherService.Api/appsettings.json
+PublisherService/PublisherService.Api/appsettings.*.json
