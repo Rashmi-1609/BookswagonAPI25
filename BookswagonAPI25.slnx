@@ -18,6 +18,7 @@
     <Project Path="PublisherService/PublisherService.Application/PublisherService.Application.csproj" />
     <Project Path="PublisherService/PublisherService.Infrastructure/PublisherService.Infrastructure.csproj" />
     <Project Path="PublisherService/PublisherService.Api/PublisherService.Api.csproj" />
+    <Project Path="PublisherService/PublisherService.Test/PublisherService.Test.csproj" />
   </Folder>
 
   <Project Path="Gateway.Yarp/Gateway.Yarp.csproj" Id="5cedf766-fdc6-4796-960c-767c40bd5329" />
