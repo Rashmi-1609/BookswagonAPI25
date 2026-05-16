@@ -20,7 +20,7 @@ public class PublisherQueryTests
     }
 
     [Fact]
-    public async Task GetPublisherByIdAsync_WhenPublisherExists_ReturnsPublisher()
+    public async Task GetPublisherById_WhenPublisherExists_ReturnsPublisher()
     {
         // Arrange
         int id = 1;
@@ -28,27 +28,26 @@ public class PublisherQueryTests
         _publisherServiceMock.Setup(service => service.GetPublisherByIdAsync(id)).ReturnsAsync(publisherDto);
 
         // Act
-        var result = await _sut.GetPublisherByIdAsync(id, _publisherServiceMock.Object);
+        var result = await _sut.GetPublisherById(_publisherServiceMock.Object, id);
 
         // Assert
         result.Should().NotBeNull();
-        result.PublisherId.Should().Be(id);
+        result!.PublisherId.Should().Be(id);
         result.CompanyName.Should().Be("Test Publisher");
     }
 
     [Fact]
-    public async Task GetPublisherByIdAsync_WhenPublisherDoesNotExist_ThrowsGraphQLException()
+    public async Task GetPublisherById_WhenPublisherDoesNotExist_ReturnsNull()
     {
         // Arrange
         int id = 999;
         _publisherServiceMock.Setup(service => service.GetPublisherByIdAsync(id)).ReturnsAsync((PublisherDto?)null);
 
         // Act
-        Func<Task> act = async () => await _sut.GetPublisherByIdAsync(id, _publisherServiceMock.Object);
+        var result = await _sut.GetPublisherById(_publisherServiceMock.Object, id);
 
         // Assert
-        await act.Should().ThrowAsync<GraphQLException>()
-            .WithMessage("Publisher not found or invalid ID.");
+        result.Should().BeNull();
     }
 
     [Fact]
@@ -61,14 +60,14 @@ public class PublisherQueryTests
             new PublisherDto { PublisherId = 1, CompanyName = "Tech Books" },
             new PublisherDto { PublisherId = 2, CompanyName = "Tech Press" }
         };
-        _publisherServiceMock.Setup(service => service.GetPublishersByNameAsync(name)).ReturnsAsync(expectedPublishers);
+        _publisherServiceMock.Setup(service => service.GetPublishersByNameAsync(name, 1, 10)).ReturnsAsync(expectedPublishers);
 
         // Act
-        var result = await _sut.GetPublishersByName(name, _publisherServiceMock.Object);
+        var result = await _sut.GetPublishersByName(_publisherServiceMock.Object, name);
 
         // Assert
         result.Should().NotBeNull();
         result.Should().BeEquivalentTo(expectedPublishers);
-        _publisherServiceMock.Verify(service => service.GetPublishersByNameAsync(name), Times.Once);
+        _publisherServiceMock.Verify(service => service.GetPublishersByNameAsync(name, 1, 10), Times.Once);
     }
 }

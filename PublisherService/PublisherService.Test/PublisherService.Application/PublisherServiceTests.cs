@@ -77,7 +77,7 @@ public class PublisherServiceTests
         // Assert
         result.Should().NotBeNull();
         result.Should().BeEmpty();
-        _repositoryMock.Verify(repo => repo.GetPublishersByNameAsync(It.IsAny<string>()), Times.Never);
+        _repositoryMock.Verify(repo => repo.GetPublishersByNameAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public class PublisherServiceTests
             new Publisher { PublisherId = 1, CompanyName = "Tech Books" },
             new Publisher { PublisherId = 2, CompanyName = "Tech Press" }
         };
-        _repositoryMock.Setup(repo => repo.GetPublishersByNameAsync(name)).ReturnsAsync(publishers);
+        _repositoryMock.Setup(repo => repo.GetPublishersByNameAsync(name, 1, 10)).ReturnsAsync(publishers);
 
         // Act
         var result = await _sut.GetPublishersByNameAsync(name);
