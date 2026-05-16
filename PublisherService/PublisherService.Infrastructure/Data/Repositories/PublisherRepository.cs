@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PublisherService.Domain.Entities;
 using PublisherService.Domain.Interfaces;
 
@@ -15,12 +15,14 @@ public class PublisherRepository(ApplicationDbContext context) : IPublisherRepos
             .FirstOrDefaultAsync(p => p.PublisherId == id);
     }
 
-    public async Task<List<Publisher>> GetPublishersByNameAsync(string name)
+    public async Task<List<Publisher>> GetPublishersByNameAsync(string name, int pageNumber = 1, int pageSize = 10)
     {
         // Search using LIKE matching your uploaded logic
         return await context.Publishers
             .Where(p => EF.Functions.Like(p.CompanyName, $"%{name}%"))
             .OrderBy(p => p.CompanyName)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
     }
 }

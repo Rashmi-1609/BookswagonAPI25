@@ -26,8 +26,7 @@ builder.Services.AddScoped<IPublisherService, PublisherSvc>();
 
 builder.Services
     .AddGraphQLServer()
-    .AddQueryType(d => d.Name("Query"))    // Creates a base Query root
-    .AddTypeExtension<PublisherQuery>()    // Registers our GET endpoints
+    .AddQueryType<PublisherQuery>()       // Registers our GET endpoints
     .AddType<PublisherType>()             // Registers our Entity/DTO schema definitions
     .AddProjections()                     // Enables [UseProjection]
     .AddFiltering()                       // Enables [UseFiltering]

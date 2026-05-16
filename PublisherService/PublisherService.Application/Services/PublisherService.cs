@@ -1,4 +1,4 @@
-﻿using PublisherService.Application.Interfaces;
+using PublisherService.Application.Interfaces;
 using PublisherService.Application.DTO;
 using PublisherService.Domain.Interfaces;
 
@@ -34,7 +34,7 @@ public class PublisherService(IPublisherRepository repository) : IPublisherServi
         };
     }
 
-    public async Task<List<PublisherDto>> GetPublishersByNameAsync(string name)
+    public async Task<List<PublisherDto>> GetPublishersByNameAsync(string name, int pageNumber = 1, int pageSize = 10)
     {
         // Rule -> Don't search if name is empty
         if (string.IsNullOrWhiteSpace(name))
@@ -44,7 +44,7 @@ public class PublisherService(IPublisherRepository repository) : IPublisherServi
 
         // Map List<Entity> -> List<DTO> using Select
         // EF Core will translate this into a highly optimized SQL SELECT statement!
-        var publishers = await repository.GetPublishersByNameAsync(name);
+        var publishers = await repository.GetPublishersByNameAsync(name, pageNumber, pageSize);
 
         return publishers.Select(p => new PublisherDto
         {

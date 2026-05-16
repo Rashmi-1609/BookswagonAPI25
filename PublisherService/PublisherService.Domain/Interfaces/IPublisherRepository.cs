@@ -1,4 +1,4 @@
-﻿using PublisherService.Domain.Entities;
+using PublisherService.Domain.Entities;
 
 namespace PublisherService.Domain.Interfaces;
 
@@ -18,6 +18,8 @@ public interface IPublisherRepository
     /// Searches for publishers based on a fuzzy match of their company name.
     /// </summary>
     /// <param name="name">The search string to match against company names.</param>
+    /// <param name="pageNumber">The page number.</param>
+    /// <param name="pageSize">The page size.</param>
     /// <returns>A list of matching publishers for deferred execution.</returns>
-    Task<List<Publisher>> GetPublishersByNameAsync(string name);
+    Task<List<Publisher>> GetPublishersByNameAsync(string name, int pageNumber = 1, int pageSize = 10);
 }
