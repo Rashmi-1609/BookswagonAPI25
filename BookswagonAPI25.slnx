@@ -13,4 +13,17 @@
     </Project>
   </Folder>
   <Project Path="Gateway.Yarp/Gateway.Yarp.csproj" Id="5cedf766-fdc6-4796-960c-767c40bd5329" />
+  <Folder Name="/ProductService/">
+    <Project Path="ProductService/ProductService.Api/ProductService.Api.csproj" Id="b4f2cdbb-7fd8-42fe-a72b-ffc4f946b728">
+      <BuildDependency Project="ProductService/ProductService.Application/ProductService.Application.csproj" />
+      <BuildDependency Project="ProductService/ProductService.Infrastructure/ProductService.Infrastructure.csproj" />
+    </Project>
+    <Project Path="ProductService/ProductService.Application/ProductService.Application.csproj" Id="cea27c57-27d6-4d15-a0bf-703b2fd09653">
+      <BuildDependency Project="ProductService/ProductService.Domain/ProductService.Domain.csproj" />
+    </Project>
+    <Project Path="ProductService/ProductService.Domain/ProductService.Domain.csproj" Id="f8b31a14-57fa-49e3-844e-f3276ba2c2a2" />
+    <Project Path="ProductService/ProductService.Infrastructure/ProductService.Infrastructure.csproj" Id="9eebfe48-a89b-48eb-8a45-2c9fcc749e01">
+      <BuildDependency Project="ProductService/ProductService.Domain/ProductService.Domain.csproj" />
+    </Project>
+  </Folder>
 </Solution>
