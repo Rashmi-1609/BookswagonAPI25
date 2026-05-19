@@ -79,5 +79,11 @@ public interface IProductReviewService
     /// <returns>The updated helpfulness DTO for the review.</returns>
     Task<ReviewHelpFulDto?> TakeUserVotingAsync(int custProfileId, int productId, int productReviewId, string userCookiesId, int votingType);
 
+    /// <summary>
+    /// Adds a new product review along with tags and images.
+    /// </summary>
+    /// <param name="inputDto">The review input details.</param>
+    /// <returns>The generated review ID, or 0 if failed.</returns>
+    Task<int> AddProductReviewAsync(ProductReviewInputDto inputDto);
 }
 

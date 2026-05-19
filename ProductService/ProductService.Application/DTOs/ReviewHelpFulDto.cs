@@ -1,5 +1,8 @@
 namespace ProductService.Application.DTOs;
 
+/// <summary>
+/// Data Transfer Object representing helpfulness and report statistics for a review.
+/// </summary>
 public class ReviewHelpFulDto
 {
     public long ReviewHelpId { get; set; }

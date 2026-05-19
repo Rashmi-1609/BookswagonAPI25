@@ -1,5 +1,8 @@
 namespace ProductService.Application.DTOs;
 
+/// <summary>
+/// Data Transfer Object representing an image attached to a product review.
+/// </summary>
 public class ProductReviewImageDto
 {
     public int ProductReviewId { get; set; }

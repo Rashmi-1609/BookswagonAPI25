@@ -14,9 +14,7 @@ public class ProductReviewService(IProductReviewRepository repository) : IProduc
 
     /// <summary>
     /// Retrieves product reviews as DTOs by product identifier.
-    /// </summary>
-    /// <param name="productId">The unique identifier of the product.</param>
-    /// <returns>A collection of product review DTOs.</returns>
+    /// <inheritdoc />
     public async Task<IEnumerable<ProductReviewDto>> GetProductReviewByIdAsync(int productId)
     {
         var reviews = await _repository.GetProductReviewByIdAsync(productId);
@@ -25,9 +23,7 @@ public class ProductReviewService(IProductReviewRepository repository) : IProduc
 
     /// <summary>
     /// Retrieves rating counts for a specific product as DTOs.
-    /// </summary>
-    /// <param name="productId">The unique identifier of the product.</param>
-    /// <returns>A collection of product review DTOs containing rating counts.</returns>
+    /// <inheritdoc />
     public async Task<IEnumerable<ProductReviewDto>> GetProductRatingCountAsync(int productId)
     {
         var reviews = await _repository.GetProductRatingCountAsync(productId);
@@ -36,21 +32,7 @@ public class ProductReviewService(IProductReviewRepository repository) : IProduc
 
     /// <summary>
     /// Retrieves detailed product reviews as DTOs with various filters and pagination.
-    /// </summary>
-    /// <param name="productId">The unique identifier of the product.</param>
-    /// <param name="starOne">Filter for 1-star reviews.</param>
-    /// <param name="starTwo">Filter for 2-star reviews.</param>
-    /// <param name="starThree">Filter for 3-star reviews.</param>
-    /// <param name="starFour">Filter for 4-star reviews.</param>
-    /// <param name="starFive">Filter for 5-star reviews.</param>
-    /// <param name="readerSpoiler">Filter for reader spoilers.</param>
-    /// <param name="recomendThis">Filter for recommended reviews.</param>
-    /// <param name="sortByFilter">The sort criteria.</param>
-    /// <param name="pageNo">The page number for pagination.</param>
-    /// <param name="noOfRow">The number of rows per page.</param>
-    /// <param name="readerType">Filter by reader type.</param>
-    /// <param name="languageType">Filter by language type.</param>
-    /// <returns>A collection of detailed product review DTOs.</returns>
+    /// <inheritdoc />
     public async Task<IEnumerable<ProductReviewDto>> GetProductReviewDetailAsync(int productId, int starOne, int starTwo, int starThree, int starFour, int starFive, int readerSpoiler, int recomendThis, int sortByFilter, int pageNo, int noOfRow, string readerType, string languageType)
     {
         var reviews = await _repository.GetProductReviewDetailAsync(productId, starOne, starTwo, starThree, starFour, starFive, readerSpoiler, recomendThis, sortByFilter, pageNo, noOfRow, readerType, languageType);
@@ -59,11 +41,7 @@ public class ProductReviewService(IProductReviewRepository repository) : IProduc
 
     /// <summary>
     /// Retrieves reviews posted by a specific user profile as DTOs.
-    /// </summary>
-    /// <param name="customerProfileId">The unique identifier of the customer profile.</param>
-    /// <param name="pageNo">The page number for pagination.</param>
-    /// <param name="noOfRow">The number of rows per page.</param>
-    /// <returns>A collection of product review DTOs by the user.</returns>
+    /// <inheritdoc />
     public async Task<IEnumerable<ProductReviewDto>> GetUserProfileReviewsAsync(int customerProfileId, int pageNo, int noOfRow)
     {
         var reviews = await _repository.GetUserProfileReviewsAsync(customerProfileId, pageNo, noOfRow);
@@ -72,9 +50,7 @@ public class ProductReviewService(IProductReviewRepository repository) : IProduc
 
     /// <summary>
     /// Retrieves reader types associated with a product's reviews as DTOs.
-    /// </summary>
-    /// <param name="productId">The unique identifier of the product.</param>
-    /// <returns>A collection of review reader type DTOs.</returns>
+    /// <inheritdoc />
     public async Task<IEnumerable<ReviewReaderTypeDto>> GetReviewReaderTypeAsync(int productId)
     {
         var types = await _repository.GetReviewReaderTypeAsync(productId);
@@ -83,8 +59,7 @@ public class ProductReviewService(IProductReviewRepository repository) : IProduc
 
     /// <summary>
     /// Retrieves all available review reader types as DTOs.
-    /// </summary>
-    /// <returns>A collection of all review reader type DTOs.</returns>
+    /// <inheritdoc />
     public async Task<IEnumerable<ReviewReaderTypeDto>> GetAllReviewReaderTypeAsync()
     {
         var types = await _repository.GetAllReviewReaderTypeAsync();
@@ -93,8 +68,7 @@ public class ProductReviewService(IProductReviewRepository repository) : IProduc
 
     /// <summary>
     /// Retrieves all available review tag names as DTOs.
-    /// </summary>
-    /// <returns>A collection of review tag name DTOs.</returns>
+    /// <inheritdoc />
     public async Task<IEnumerable<ReviewTagNameDto>> GetReviewTagsNameAsync()
     {
         var tags = await _repository.GetReviewTagsNameAsync();
@@ -103,13 +77,7 @@ public class ProductReviewService(IProductReviewRepository repository) : IProduc
 
     /// <summary>
     /// Records a user's vote on a product review and returns the result as a DTO.
-    /// </summary>
-    /// <param name="custProfileId">The unique identifier of the customer profile.</param>
-    /// <param name="productId">The unique identifier of the product.</param>
-    /// <param name="productReviewId">The unique identifier of the product review.</param>
-    /// <param name="userCookiesId">The user's cookie identifier for guest voting.</param>
-    /// <param name="votingType">The type of vote (e.g., helpful, report).</param>
-    /// <returns>The updated helpfulness DTO for the review.</returns>
+    /// <inheritdoc />
     public async Task<ReviewHelpFulDto?> TakeUserVotingAsync(int custProfileId, int productId, int productReviewId, string userCookiesId, int votingType)
     {
         var result = await _repository.TakeUserVotingAsync(custProfileId, productId, productReviewId, userCookiesId, votingType);
@@ -122,6 +90,44 @@ public class ProductReviewService(IProductReviewRepository repository) : IProduc
             NotHelpFul = result.NotHelpFul,
             Reported = result.Reported
         };
+    }
+
+    /// <summary>
+    /// Adds a new product review along with tags and images.
+    /// <inheritdoc />
+    public async Task<int> AddProductReviewAsync(ProductReviewInputDto inputDto)
+    {
+        if (inputDto == null) return 0;
+
+        var entity = new ProductReview
+        {
+            ProductId = inputDto.ProductId,
+            ReviewTitle = inputDto.ReviewTitle,
+            ReviewBy = inputDto.ReviewBy,
+            Description = inputDto.Description,
+            ReviewStatus = inputDto.ReviewStatus,
+            Rating = inputDto.Rating,
+            RecommendThis = inputDto.RecommendThis,
+            ReaderType = inputDto.ReaderType,
+            ReaderSpoiler = inputDto.ReaderSpoiler,
+            UserEmail = inputDto.UserEmail,
+            IsActive = true,
+            IsDeleted = false,
+            DateCreated = DateTime.Now,
+            ReviewTagNames = inputDto.ReviewTagNames?.Select(t => new ReviewTagName
+            {
+                Id = t.Id,
+                TagName = t.TagName
+            }).ToList() ?? new List<ReviewTagName>(),
+            ProductReviewImages = inputDto.ProductReviewImages?.Select(i => new ProductReviewImage
+            {
+                ProductReviewId = i.ProductReviewId,
+                ImageLocation = i.ImageLocation,
+                ImageCaption = i.ImageCaption
+            }).ToList() ?? new List<ProductReviewImage>()
+        };
+
+        return await _repository.AddProductReviewAsync(entity);
     }
 
     /// <summary>

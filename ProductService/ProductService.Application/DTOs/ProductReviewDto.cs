@@ -1,5 +1,8 @@
 namespace ProductService.Application.DTOs;
 
+/// <summary>
+/// Data Transfer Object representing detailed product review data.
+/// </summary>
 public class ProductReviewDto
 {
     public int ProductReviewId { get; set; }
@@ -26,7 +29,6 @@ public class ProductReviewDto
     public string ReaderSpoiler { get; set; } = string.Empty;
     public int TotalRecord { get; set; }
     public int CustomerProfileId { get; set; }
-
     public List<ProductReviewImageDto> ProductReviewImages { get; set; } = new();
     public ReviewHelpFulDto ReviewHelpFul { get; set; } = new();
 }
