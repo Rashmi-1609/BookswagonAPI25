@@ -24,55 +24,55 @@ public class ProductReviewService(IProductReviewRepository repository) : IProduc
     /// <summary>
     /// Retrieves rating counts for a specific product as DTOs.
     /// <inheritdoc />
-    public async Task<IEnumerable<ProductReviewDto>> GetProductRatingCountAsync(int productId)
+    public async Task<List<ProductReviewDto>> GetProductRatingCountAsync(int productId)
     {
         var reviews = await _repository.GetProductRatingCountAsync(productId);
-        return reviews.Select(MapToDto).Where(x => x != null)!;
+        return reviews.Select(MapToDto).Where(x => x != null).Cast<ProductReviewDto>().ToList();
     }
 
     /// <summary>
     /// Retrieves detailed product reviews as DTOs with various filters and pagination.
     /// <inheritdoc />
-    public async Task<IEnumerable<ProductReviewDto>> GetProductReviewDetailAsync(int productId, int starOne, int starTwo, int starThree, int starFour, int starFive, int readerSpoiler, int recomendThis, int sortByFilter, int pageNo, int noOfRow, string readerType, string languageType)
+    public async Task<List<ProductReviewDto>> GetProductReviewDetailAsync(int productId, int starOne, int starTwo, int starThree, int starFour, int starFive, int readerSpoiler, int recomendThis, int sortByFilter, int pageNo, int noOfRow, string readerType, string languageType)
     {
         var reviews = await _repository.GetProductReviewDetailAsync(productId, starOne, starTwo, starThree, starFour, starFive, readerSpoiler, recomendThis, sortByFilter, pageNo, noOfRow, readerType, languageType);
-        return reviews.Select(MapToDto).Where(x => x != null)!;
+        return reviews.Select(MapToDto).Where(x => x != null).Cast<ProductReviewDto>().ToList();
     }
 
     /// <summary>
     /// Retrieves reviews posted by a specific user profile as DTOs.
     /// <inheritdoc />
-    public async Task<IEnumerable<ProductReviewDto>> GetUserProfileReviewsAsync(int customerProfileId, int pageNo, int noOfRow)
+    public async Task<List<ProductReviewDto>> GetUserProfileReviewsAsync(int customerProfileId, int pageNo, int noOfRow)
     {
         var reviews = await _repository.GetUserProfileReviewsAsync(customerProfileId, pageNo, noOfRow);
-        return reviews.Select(MapToDto).Where(x => x != null)!;
+        return reviews.Select(MapToDto).Where(x => x != null).Cast<ProductReviewDto>().ToList();
     }
 
     /// <summary>
     /// Retrieves reader types associated with a product's reviews as DTOs.
     /// <inheritdoc />
-    public async Task<IEnumerable<ReviewReaderTypeDto>> GetReviewReaderTypeAsync(int productId)
+    public async Task<List<ReviewReaderTypeDto>> GetReviewReaderTypeAsync(int productId)
     {
         var types = await _repository.GetReviewReaderTypeAsync(productId);
-        return types.Select(t => new ReviewReaderTypeDto { ReaderTypeId = t.ReaderTypeId, ReaderType = t.ReaderType });
+        return types.Select(t => new ReviewReaderTypeDto { ReaderTypeId = t.ReaderTypeId, ReaderType = t.ReaderType }).ToList();
     }
 
     /// <summary>
     /// Retrieves all available review reader types as DTOs.
     /// <inheritdoc />
-    public async Task<IEnumerable<ReviewReaderTypeDto>> GetAllReviewReaderTypeAsync()
+    public async Task<List<ReviewReaderTypeDto>> GetAllReviewReaderTypeAsync()
     {
         var types = await _repository.GetAllReviewReaderTypeAsync();
-        return types.Select(t => new ReviewReaderTypeDto { ReaderTypeId = t.ReaderTypeId, ReaderType = t.ReaderType });
+        return types.Select(t => new ReviewReaderTypeDto { ReaderTypeId = t.ReaderTypeId, ReaderType = t.ReaderType }).ToList();
     }
 
     /// <summary>
     /// Retrieves all available review tag names as DTOs.
     /// <inheritdoc />
-    public async Task<IEnumerable<ReviewTagNameDto>> GetReviewTagsNameAsync()
+    public async Task<List<ReviewTagNameDto>> GetReviewTagsNameAsync()
     {
         var tags = await _repository.GetReviewTagsNameAsync();
-        return tags.Select(t => new ReviewTagNameDto { Id = t.Id, TagName = t.TagName });
+        return tags.Select(t => new ReviewTagNameDto { Id = t.Id, TagName = t.TagName }).ToList();
     }
 
     /// <summary>

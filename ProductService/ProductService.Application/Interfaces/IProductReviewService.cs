@@ -18,8 +18,8 @@ public interface IProductReviewService
     /// Retrieves rating counts for a specific product as DTOs.
     /// </summary>
     /// <param name="productId">The unique identifier of the product.</param>
-    /// <returns>A collection of product review DTOs containing rating counts.</returns>
-    Task<IEnumerable<ProductReviewDto>> GetProductRatingCountAsync(int productId);
+    /// <returns>A list of product review DTOs containing rating counts.</returns>
+    Task<List<ProductReviewDto>> GetProductRatingCountAsync(int productId);
 
     /// <summary>
     /// Retrieves detailed product reviews as DTOs with various filters and pagination.
@@ -37,8 +37,8 @@ public interface IProductReviewService
     /// <param name="noOfRow">The number of rows per page.</param>
     /// <param name="readerType">Filter by reader type.</param>
     /// <param name="languageType">Filter by language type.</param>
-    /// <returns>A collection of detailed product review DTOs.</returns>
-    Task<IEnumerable<ProductReviewDto>> GetProductReviewDetailAsync(int productId, int starOne, int starTwo, int starThree, int starFour, int starFive, int readerSpoiler, int recomendThis, int sortByFilter, int pageNo, int noOfRow, string readerType, string languageType);
+    /// <returns>A list of detailed product review DTOs.</returns>
+    Task<List<ProductReviewDto>> GetProductReviewDetailAsync(int productId, int starOne, int starTwo, int starThree, int starFour, int starFive, int readerSpoiler, int recomendThis, int sortByFilter, int pageNo, int noOfRow, string readerType, string languageType);
 
     /// <summary>
     /// Retrieves reviews posted by a specific user profile as DTOs.
@@ -46,27 +46,27 @@ public interface IProductReviewService
     /// <param name="customerProfileId">The unique identifier of the customer profile.</param>
     /// <param name="pageNo">The page number for pagination.</param>
     /// <param name="noOfRow">The number of rows per page.</param>
-    /// <returns>A collection of product review DTOs by the user.</returns>
-    Task<IEnumerable<ProductReviewDto>> GetUserProfileReviewsAsync(int customerProfileId, int pageNo, int noOfRow);
+    /// <returns>A list of product review DTOs by the user.</returns>
+    Task<List<ProductReviewDto>> GetUserProfileReviewsAsync(int customerProfileId, int pageNo, int noOfRow);
 
     /// <summary>
     /// Retrieves reader types associated with a product's reviews as DTOs.
     /// </summary>
     /// <param name="productId">The unique identifier of the product.</param>
-    /// <returns>A collection of review reader type DTOs.</returns>
-    Task<IEnumerable<ReviewReaderTypeDto>> GetReviewReaderTypeAsync(int productId);
+    /// <returns>A list of review reader type DTOs.</returns>
+    Task<List<ReviewReaderTypeDto>> GetReviewReaderTypeAsync(int productId);
 
     /// <summary>
     /// Retrieves all available review reader types as DTOs.
     /// </summary>
-    /// <returns>A collection of all review reader type DTOs.</returns>
-    Task<IEnumerable<ReviewReaderTypeDto>> GetAllReviewReaderTypeAsync();
+    /// <returns>A list of all review reader type DTOs.</returns>
+    Task<List<ReviewReaderTypeDto>> GetAllReviewReaderTypeAsync();
 
     /// <summary>
     /// Retrieves all available review tag names as DTOs.
     /// </summary>
-    /// <returns>A collection of review tag name DTOs.</returns>
-    Task<IEnumerable<ReviewTagNameDto>> GetReviewTagsNameAsync();
+    /// <returns>A list of review tag name DTOs.</returns>
+    Task<List<ReviewTagNameDto>> GetReviewTagsNameAsync();
 
     /// <summary>
     /// Records a user's vote on a product review and returns the result as a DTO.
