@@ -107,4 +107,7 @@ public class ProductReview
     
     [NotMapped]
     public ReviewHelpFul ReviewHelpFul { get; set; } = new();
+
+    [NotMapped]
+    public List<ReviewTagName> ReviewTagNames { get; set; } = new();
 }

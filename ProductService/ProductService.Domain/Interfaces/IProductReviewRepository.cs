@@ -79,5 +79,12 @@ public interface IProductReviewRepository
     /// <param name="votingType">The type of vote (e.g., helpful, report).</param>
     /// <returns>The updated helpfulness data for the review.</returns>
     Task<ReviewHelpFul?> TakeUserVotingAsync(int custProfileId, int productId, int productReviewId, string userCookiesId, int votingType);
+
+    /// <summary>
+    /// Adds a new product review along with tags and images.
+    /// </summary>
+    /// <param name="productReview">The review details to add.</param>
+    /// <returns>The generated Product Review ID, or 0 if failed.</returns>
+    Task<int> AddProductReviewAsync(ProductReview productReview);
 }
 
