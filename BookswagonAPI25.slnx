@@ -25,5 +25,6 @@
     <Project Path="ProductService/ProductService.Infrastructure/ProductService.Infrastructure.csproj" Id="9eebfe48-a89b-48eb-8a45-2c9fcc749e01">
       <BuildDependency Project="ProductService/ProductService.Domain/ProductService.Domain.csproj" />
     </Project>
+    <Project Path="ProductService/ProductService.Test/ProductService.Test.csproj" Id="a6b8f3b2-78be-40fb-8869-7c4ad9b3c432" />
   </Folder>
 </Solution>
