@@ -45,7 +45,7 @@ public class ProductReviewRepository(ProductDbContext dbContext) : IProductRevie
     /// <summary>
     /// Retrieves rating counts for a specific product.
     /// <inheritdoc />
-    public async Task<IEnumerable<ProductReview>> GetProductRatingCountAsync(int productId)
+    public async Task<List<ProductReview>> GetProductRatingCountAsync(int productId)
     {
         var productReviews = new List<ProductReview>();
         var command = _dbContext.Database.GetDbConnection().CreateCommand();
@@ -70,7 +70,7 @@ public class ProductReviewRepository(ProductDbContext dbContext) : IProductRevie
     /// <summary>
     /// Retrieves detailed product reviews with various filters and pagination.
     /// <inheritdoc />
-    public async Task<IEnumerable<ProductReview>> GetProductReviewDetailAsync(int productId, int starOne, int starTwo, int starThree, int starFour, int starFive, int readerSpoiler, int recomendThis, int sortByFilter, int pageNo, int noOfRow, string readerType, string languageType)
+    public async Task<List<ProductReview>> GetProductReviewDetailAsync(int productId, int starOne, int starTwo, int starThree, int starFour, int starFive, int readerSpoiler, int recomendThis, int sortByFilter, int pageNo, int noOfRow, string readerType, string languageType)
     {
         var productReviews = new List<ProductReview>();
         var command = _dbContext.Database.GetDbConnection().CreateCommand();
@@ -126,7 +126,7 @@ public class ProductReviewRepository(ProductDbContext dbContext) : IProductRevie
     /// <summary>
     /// Retrieves reviews posted by a specific user profile.
     /// <inheritdoc />
-    public async Task<IEnumerable<ProductReview>> GetUserProfileReviewsAsync(int customerProfileId, int pageNo, int noOfRow)
+    public async Task<List<ProductReview>> GetUserProfileReviewsAsync(int customerProfileId, int pageNo, int noOfRow)
     {
         var productReviews = new List<ProductReview>();
         var command = _dbContext.Database.GetDbConnection().CreateCommand();
@@ -163,7 +163,7 @@ public class ProductReviewRepository(ProductDbContext dbContext) : IProductRevie
     /// <summary>
     /// Retrieves reader types associated with a product's reviews.
     /// <inheritdoc />
-    public async Task<IEnumerable<ReviewReaderType>> GetReviewReaderTypeAsync(int productId)
+    public async Task<List<ReviewReaderType>> GetReviewReaderTypeAsync(int productId)
     {
         var lst = new List<ReviewReaderType>();
         var command = _dbContext.Database.GetDbConnection().CreateCommand();
@@ -187,7 +187,7 @@ public class ProductReviewRepository(ProductDbContext dbContext) : IProductRevie
     /// <summary>
     /// Retrieves all available review reader types.
     /// <inheritdoc />
-    public async Task<IEnumerable<ReviewReaderType>> GetAllReviewReaderTypeAsync()
+    public async Task<List<ReviewReaderType>> GetAllReviewReaderTypeAsync()
     {
         var lst = new List<ReviewReaderType>();
         var command = _dbContext.Database.GetDbConnection().CreateCommand();
@@ -210,7 +210,7 @@ public class ProductReviewRepository(ProductDbContext dbContext) : IProductRevie
     /// <summary>
     /// Retrieves all available review tag names.
     /// <inheritdoc />
-    public async Task<IEnumerable<ReviewTagName>> GetReviewTagsNameAsync()
+    public async Task<List<ReviewTagName>> GetReviewTagsNameAsync()
     {
         var lst = new List<ReviewTagName>();
         var command = _dbContext.Database.GetDbConnection().CreateCommand();

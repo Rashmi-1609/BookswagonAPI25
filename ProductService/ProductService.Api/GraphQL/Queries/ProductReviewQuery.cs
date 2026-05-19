@@ -23,8 +23,8 @@ public class ProductReviewQuery
     /// </summary>
     /// <param name="svc">The product review service.</param>
     /// <param name="productId">The unique identifier of the product.</param>
-    /// <returns>A collection of product review DTOs containing rating counts.</returns>
-    public Task<IEnumerable<ProductReviewDto>> GetProductRatingCount([Service] IProductReviewService svc, int productId)
+    /// <returns>A list of product review DTOs containing rating counts.</returns>
+    public Task<List<ProductReviewDto>> GetProductRatingCount([Service] IProductReviewService svc, int productId)
         => svc.GetProductRatingCountAsync(productId);
 
     /// <summary>
@@ -44,8 +44,8 @@ public class ProductReviewQuery
     /// <param name="noOfRow">The number of rows per page.</param>
     /// <param name="readerType">Filter by reader type.</param>
     /// <param name="languageType">Filter by language type.</param>
-    /// <returns>A collection of detailed product review DTOs.</returns>
-    public Task<IEnumerable<ProductReviewDto>> GetProductReviewDetail([Service] IProductReviewService svc, 
+    /// <returns>A list of detailed product review DTOs.</returns>
+    public Task<List<ProductReviewDto>> GetProductReviewDetail([Service] IProductReviewService svc, 
         int productId, int starOne, int starTwo, int starThree, int starFour, int starFive, 
         int readerSpoiler, int recomendThis, int sortByFilter, int pageNo, int noOfRow, 
         string readerType, string languageType)
@@ -58,8 +58,8 @@ public class ProductReviewQuery
     /// <param name="customerProfileId">The unique identifier of the customer profile.</param>
     /// <param name="pageNo">The page number for pagination.</param>
     /// <param name="noOfRow">The number of rows per page.</param>
-    /// <returns>A collection of product review DTOs by the user.</returns>
-    public Task<IEnumerable<ProductReviewDto>> GetUserProfileReviews([Service] IProductReviewService svc, int customerProfileId, int pageNo, int noOfRow)
+    /// <returns>A list of product review DTOs by the user.</returns>
+    public Task<List<ProductReviewDto>> GetUserProfileReviews([Service] IProductReviewService svc, int customerProfileId, int pageNo, int noOfRow)
         => svc.GetUserProfileReviewsAsync(customerProfileId, pageNo, noOfRow);
 
     /// <summary>
@@ -67,24 +67,24 @@ public class ProductReviewQuery
     /// </summary>
     /// <param name="svc">The product review service.</param>
     /// <param name="productId">The unique identifier of the product.</param>
-    /// <returns>A collection of review reader type DTOs.</returns>
-    public Task<IEnumerable<ReviewReaderTypeDto>> GetReviewReaderType([Service] IProductReviewService svc, int productId)
+    /// <returns>A list of review reader type DTOs.</returns>
+    public Task<List<ReviewReaderTypeDto>> GetReviewReaderType([Service] IProductReviewService svc, int productId)
         => svc.GetReviewReaderTypeAsync(productId);
 
     /// <summary>
     /// Retrieves all available review reader types.
     /// </summary>
     /// <param name="svc">The product review service.</param>
-    /// <returns>A collection of all review reader type DTOs.</returns>
-    public Task<IEnumerable<ReviewReaderTypeDto>> GetAllReviewReaderType([Service] IProductReviewService svc)
+    /// <returns>A list of all review reader type DTOs.</returns>
+    public Task<List<ReviewReaderTypeDto>> GetAllReviewReaderType([Service] IProductReviewService svc)
         => svc.GetAllReviewReaderTypeAsync();
 
     /// <summary>
     /// Retrieves all available review tag names.
     /// </summary>
     /// <param name="svc">The product review service.</param>
-    /// <returns>A collection of review tag name DTOs.</returns>
-    public Task<IEnumerable<ReviewTagNameDto>> GetReviewTagsName([Service] IProductReviewService svc)
+    /// <returns>A list of review tag name DTOs.</returns>
+    public Task<List<ReviewTagNameDto>> GetReviewTagsName([Service] IProductReviewService svc)
         => svc.GetReviewTagsNameAsync();
 
     /// <summary>
