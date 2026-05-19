@@ -17,6 +17,7 @@
 9. [Dependency Injection & Startup](#dependency-injection--startup)
 10. [Configuration](#configuration)
 11. [Running Locally](#running-locally)
+12. [Unit Testing](#unit-testing)
 
 ---
 
@@ -633,6 +634,41 @@ mutation {
   })
 }
 ```
+
+---
+
+## Unit Testing
+
+ProductService is backed by a fully isolated automated unit testing suite targeting the Presentation (GraphQL Resolver) and Business Logic (Application Services) layers. 
+
+### Test Project
+* **Project Folder**: [`ProductService.Test`](file:///d:/Main/BookswagonAPI25/ProductService/ProductService.Test)
+* **Frameworks**: `.NET 10.0`, `xUnit`, `Moq`, and `FluentAssertions`.
+
+### Scenarios Covered
+The suite features **38 robust unit tests** ensuring strict behavior boundaries:
+
+1. **Application Layer (`ProductReviewServiceTests.cs`)**:
+   * Standard DTO mapping for all properties & lists.
+   * Proper filter-out behavior when database returns null entries.
+   * Fallback values when images or voting records are unassigned.
+   * Input verification preventing duplicate review submissions.
+   * Voter response validation across helpful, unhelpful, and report types.
+
+2. **GraphQL Layer (`ProductReviewQueryTests.cs`)**:
+   * Resolver parameter forwarding verification.
+   * Controlled `GraphQLException` generation for invalid mutation fields (e.g. empty `ReviewTitle`).
+   * Delegation of all query and mutation inputs to the corresponding service boundaries.
+
+### Executing Tests
+
+To run the full suite from the repository root:
+
+```bash
+dotnet test ProductService/ProductService.Test/ProductService.Test.csproj --verbosity normal
+```
+
+For more detailed reports and architectural diagrams of the test design, see the dedicated [ProductService.Test README](file:///d:/Main/BookswagonAPI25/ProductService/ProductService.Test/README.md).
 
 ---
 
