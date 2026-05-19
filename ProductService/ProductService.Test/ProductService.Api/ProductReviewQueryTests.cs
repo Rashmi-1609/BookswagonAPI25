@@ -217,7 +217,7 @@ public class ProductReviewQueryTests
     {
         // Arrange
         _serviceMock.Setup(svc => svc.GetProductRatingCountAsync(101))
-            .ReturnsAsync(Enumerable.Empty<ProductReviewDto>());
+            .ReturnsAsync(new List<ProductReviewDto>());
 
         // Act
         var result = await _query.GetProductRatingCount(_serviceMock.Object, 101);
@@ -231,7 +231,7 @@ public class ProductReviewQueryTests
     {
         // Arrange
         _serviceMock.Setup(svc => svc.GetProductReviewDetailAsync(101, 1, 0, 0, 0, 0, 0, 1, 1, 1, 10, "General", "English"))
-            .ReturnsAsync(Enumerable.Empty<ProductReviewDto>());
+            .ReturnsAsync(new List<ProductReviewDto>());
 
         // Act
         var result = await _query.GetProductReviewDetail(_serviceMock.Object, 101, 1, 0, 0, 0, 0, 0, 1, 1, 1, 10, "General", "English");
@@ -245,7 +245,7 @@ public class ProductReviewQueryTests
     {
         // Arrange
         _serviceMock.Setup(svc => svc.GetUserProfileReviewsAsync(5, 1, 10))
-            .ReturnsAsync(Enumerable.Empty<ProductReviewDto>());
+            .ReturnsAsync(new List<ProductReviewDto>());
 
         // Act
         var result = await _query.GetUserProfileReviews(_serviceMock.Object, 5, 1, 10);
@@ -259,7 +259,7 @@ public class ProductReviewQueryTests
     {
         // Arrange
         _serviceMock.Setup(svc => svc.GetReviewReaderTypeAsync(101))
-            .ReturnsAsync(Enumerable.Empty<ReviewReaderTypeDto>());
+            .ReturnsAsync(new List<ReviewReaderTypeDto>());
 
         // Act
         var result = await _query.GetReviewReaderType(_serviceMock.Object, 101);
@@ -273,7 +273,7 @@ public class ProductReviewQueryTests
     {
         // Arrange
         _serviceMock.Setup(svc => svc.GetAllReviewReaderTypeAsync())
-            .ReturnsAsync(Enumerable.Empty<ReviewReaderTypeDto>());
+            .ReturnsAsync(new List<ReviewReaderTypeDto>());
 
         // Act
         var result = await _query.GetAllReviewReaderType(_serviceMock.Object);
@@ -287,7 +287,7 @@ public class ProductReviewQueryTests
     {
         // Arrange
         _serviceMock.Setup(svc => svc.GetReviewTagsNameAsync())
-            .ReturnsAsync(Enumerable.Empty<ReviewTagNameDto>());
+            .ReturnsAsync(new List<ReviewTagNameDto>());
 
         // Act
         var result = await _query.GetReviewTagsName(_serviceMock.Object);

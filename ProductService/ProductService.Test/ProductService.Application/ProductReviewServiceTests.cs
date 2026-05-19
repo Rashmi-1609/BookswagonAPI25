@@ -360,7 +360,7 @@ public class ProductReviewServiceTests
     {
         // Arrange
         _repositoryMock.Setup(repo => repo.GetProductReviewDetailAsync(101, 1, 0, 0, 0, 0, 0, 1, 1, 1, 10, "General", "English"))
-            .ReturnsAsync(Enumerable.Empty<ProductReview>());
+            .ReturnsAsync(new List<ProductReview>());
 
         // Act
         var result = await _service.GetProductReviewDetailAsync(101, 1, 0, 0, 0, 0, 0, 1, 1, 1, 10, "General", "English");
@@ -374,7 +374,7 @@ public class ProductReviewServiceTests
     {
         // Arrange
         _repositoryMock.Setup(repo => repo.GetUserProfileReviewsAsync(5, 1, 10))
-            .ReturnsAsync(Enumerable.Empty<ProductReview>());
+            .ReturnsAsync(new List<ProductReview>());
 
         // Act
         var result = await _service.GetUserProfileReviewsAsync(5, 1, 10);
@@ -388,7 +388,7 @@ public class ProductReviewServiceTests
     {
         // Arrange
         _repositoryMock.Setup(repo => repo.GetReviewReaderTypeAsync(101))
-            .ReturnsAsync(Enumerable.Empty<ReviewReaderType>());
+            .ReturnsAsync(new List<ReviewReaderType>());
 
         // Act
         var result = await _service.GetReviewReaderTypeAsync(101);
@@ -402,7 +402,7 @@ public class ProductReviewServiceTests
     {
         // Arrange
         _repositoryMock.Setup(repo => repo.GetAllReviewReaderTypeAsync())
-            .ReturnsAsync(Enumerable.Empty<ReviewReaderType>());
+            .ReturnsAsync(new List<ReviewReaderType>());
 
         // Act
         var result = await _service.GetAllReviewReaderTypeAsync();
@@ -416,7 +416,7 @@ public class ProductReviewServiceTests
     {
         // Arrange
         _repositoryMock.Setup(repo => repo.GetReviewTagsNameAsync())
-            .ReturnsAsync(Enumerable.Empty<ReviewTagName>());
+            .ReturnsAsync(new List<ReviewTagName>());
 
         // Act
         var result = await _service.GetReviewTagsNameAsync();
@@ -430,7 +430,7 @@ public class ProductReviewServiceTests
     {
         // Arrange
         _repositoryMock.Setup(repo => repo.GetProductRatingCountAsync(101))
-            .ReturnsAsync(Enumerable.Empty<ProductReview>());
+            .ReturnsAsync(new List<ProductReview>());
 
         // Act
         var result = await _service.GetProductRatingCountAsync(101);
