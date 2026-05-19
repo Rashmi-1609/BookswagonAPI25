@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProductService.Api.GraphQL.Queries;
+using ProductService.Api.GraphQL.Mutations;
 using ProductService.Api.GraphQL.Types;
 using ProductService.Application.Interfaces;
 using ProductService.Domain.Interfaces;
@@ -27,6 +28,7 @@ builder.Services.AddScoped<IProductReviewService, ProductReviewService>();
 builder.Services
     .AddGraphQLServer()
     .AddQueryType<ProductReviewQuery>()
+    .AddMutationType<ProductReviewMutation>()
     .AddType<ProductReviewType>()
     .AddType<ProductReviewImageType>()
     .AddType<ReviewHelpFulType>()
@@ -45,6 +47,9 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
+
+// Add Authorization services
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
