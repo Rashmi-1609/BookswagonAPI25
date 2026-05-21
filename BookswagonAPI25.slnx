@@ -11,6 +11,13 @@
     <Project Path="AuthorService/AuthorService.Infrastructure/AuthorService.Infrastructure.csproj" Id="0851db02-0049-4a56-a814-5ab8a0abc241">
       <BuildDependency Project="AuthorService/AuthorService.Domain/AuthorService.Domain.csproj" />
     </Project>
+    <Project Path="AuthorService/Tests/AuthorService.Tests/AuthorService.Tests.csproj" />
+  </Folder>
+  <Folder Name="/CategoryService/">
+    <Project Path="CategoryService/CategoryService.Api/CategoryService.Api.csproj" />
+    <Project Path="CategoryService/CategoryService.Application/CategoryService.Application.csproj" />
+    <Project Path="CategoryService/CategoryService.Domain/CategoryService.Domain.csproj" />
+    <Project Path="CategoryService/CategoryService.Infrastructure/CategoryService.Infrastructure.csproj" />
   </Folder>
   <Project Path="Gateway.Yarp/Gateway.Yarp.csproj" Id="5cedf766-fdc6-4796-960c-767c40bd5329" />
 </Solution>
