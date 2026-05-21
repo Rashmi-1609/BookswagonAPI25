@@ -26,7 +26,7 @@
 
 | Attribute        | Value                                  |
 |------------------|----------------------------------------|
-| **Framework**    | .NET 9 (ASP.NET Core)                  |
+| **Framework**    | .NET 10 (ASP.NET Core)                 |
 | **API Protocol** | GraphQL via HotChocolate               |
 | **Database**     | SQL Server (`Bookswagon25` schema)     |
 | **Data Access**  | EF Core + Raw Stored Procedures        |
@@ -400,21 +400,21 @@ All heavy data operations are delegated to SQL Server stored procedures for perf
 | Repository Method | Stored Procedure | Access Method | Description |
 |---|---|---|---|
 | `GetProductReviewByIdAsync` | *(LINQ EF Core)* | EF Core LINQ | Direct table query with filters |
-| `GetProductRatingCountAsync` | `SProc_GetProductRateingCount` | Raw ADO.NET | Per-star rating counts |
-| `GetProductReviewDetailAsync` | `SProc_GetReview` | Raw ADO.NET | Full filtered + paginated reviews |
-| `GetUserProfileReviewsAsync` | `SProc_GetUserReview` | Raw ADO.NET | Reviews by customer profile |
-| `GetReviewReaderTypeAsync` | `SProc_GetReviewReaderType` | Raw ADO.NET | Reader types for a product |
-| `GetAllReviewReaderTypeAsync` | `SP_GetReviewReaderType` | Raw ADO.NET | All reader type lookup values |
-| `GetReviewTagsNameAsync` | `SP_GetReviewTagName` | Raw ADO.NET | All review tag names |
-| `TakeUserVotingAsync` | `SProc_InsertReviewVoting` | Raw ADO.NET | Record a user vote |
-| `GetProductReviewImagesAsync` *(private)* | `SProc_GetProdReviewImage` | Raw ADO.NET | Images for a review |
-| `GetUserVotingAsync` *(private)* | `SProc_GetReviewVoting` | Raw ADO.NET | Existing vote state |
-| `AddProductReviewAsync` | `SProc_AddProductReviewNew` | Raw ADO.NET | Insert new review |
-| `GetReviewUserProfileAsync` *(private)* | `Sproc_GetReviewUserProfile` | Raw ADO.NET | Look up reviewer profile |
-| `AddReviewUserProfileAsync` *(private)* | `Sproc_InsertReviewUserProfile` | Raw ADO.NET | Create reviewer profile |
-| `CheckForUserProductReviewAsync` *(private)* | `SProc_AllReadySubmitReview` | Raw ADO.NET | Duplicate review check |
-| `AddReviewTagUserAsync` *(private)* | `SProc_AddReviewTagUser` | Raw ADO.NET | Attach tag to review |
-| `AddReviewImageAsync` *(private)* | `SProc_AddProductReviewImage` | Raw ADO.NET | Attach image to review |
+| `GetProductRatingCountAsync` | `SProc_GetProductRateingCount` | EF Core Raw SQL | Per-star rating counts |
+| `GetProductReviewDetailAsync` | `SProc_GetReview` | EF Core Raw SQL | Full filtered + paginated reviews |
+| `GetUserProfileReviewsAsync` | `SProc_GetUserReview` | EF Core Raw SQL | Reviews by customer profile |
+| `GetReviewReaderTypeAsync` | `SProc_GetReviewReaderType` | EF Core Raw SQL | Reader types for a product |
+| `GetAllReviewReaderTypeAsync` | `SP_GetReviewReaderType` | EF Core Raw SQL | All reader type lookup values |
+| `GetReviewTagsNameAsync` | `SP_GetReviewTagName` | EF Core Raw SQL | All review tag names |
+| `TakeUserVotingAsync` | `SProc_InsertReviewVoting` | EF Core Raw SQL | Record a user vote |
+| `GetProductReviewImagesAsync` *(private)* | `SProc_GetProdReviewImage` | EF Core Raw SQL | Images for a review |
+| `GetUserVotingAsync` *(private)* | `SProc_GetReviewVoting` | EF Core Raw SQL | Existing vote state |
+| `AddProductReviewAsync` | `SProc_AddProductReviewNew` | EF Core Raw SQL | Insert new review |
+| `GetReviewUserProfileAsync` *(private)* | `Sproc_GetReviewUserProfile` | EF Core Raw SQL | Look up reviewer profile |
+| `AddReviewUserProfileAsync` *(private)* | `Sproc_InsertReviewUserProfile` | EF Core Raw SQL | Create reviewer profile |
+| `CheckForUserProductReviewAsync` *(private)* | `SProc_AllReadySubmitReview` | EF Core Raw SQL | Duplicate review check |
+| `AddReviewTagUserAsync` *(private)* | `SProc_AddReviewTagUser` | EF Core Raw SQL | Attach tag to review |
+| `AddReviewImageAsync` *(private)* | `SProc_AddProductReviewImage` | EF Core Raw SQL | Attach image to review |
 
 > **MARS Enabled:** The connection string uses `MultipleActiveResultSets=true`, which allows the repository to open nested connections for per-review image and vote sub-queries within a single loop.
 
@@ -565,7 +565,7 @@ The YARP gateway proxies `/product-service/graphql` → `http://localhost:<Produ
 
 ### Prerequisites
 
-- .NET 9 SDK
+- .NET 10 SDK
 - SQL Server (or accessible remote instance)
 - Access to `Bookswagon25` database with all stored procedures
 
