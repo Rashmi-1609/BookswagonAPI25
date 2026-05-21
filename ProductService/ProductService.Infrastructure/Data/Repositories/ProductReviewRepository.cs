@@ -1,394 +1,314 @@
 using System.Data;
-using System.Data.Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using ProductService.Domain.Interfaces;
+using ProductService.Application.Interfaces;
+using ProductService.Application.DTOs;
 using ProductService.Domain.Entities;
 using ProductService.Infrastructure.Data;
+using ProductService.Infrastructure.Data.Repositories.Models;
 
 namespace ProductService.Infrastructure.Data.Repositories;
 
 /// <summary>
-/// Repository for accessing Product Review data via stored procedures.
+/// Repository for accessing Product Review data using Modern EF Core capabilities.
 /// </summary>
 public class ProductReviewRepository(ProductDbContext dbContext) : IProductReviewRepository
 {
     private readonly ProductDbContext _dbContext = dbContext;
 
-    /// <summary>
-    /// Retrieves product reviews by product identifier.
     /// <inheritdoc />
-    public async Task<IEnumerable<ProductReview>> GetProductReviewByIdAsync(int productId)
+    public async Task<IEnumerable<ProductReviewDto>> GetProductReviewByIdAsync(int productId)
     {
-        var lstProductReview = await _dbContext.ProductReviews
-            .Where(p => p.ProductId == productId && p.ReviewStatus == 1 && p.IsActive == true && p.IsDeleted == false)
+        var query = _dbContext.ProductReviews
+            .Where(p => p.ProductId == productId && p.ReviewStatus == 1 && p.IsActive == true && p.IsDeleted == false);
+
+        var totalCount = await query.CountAsync();
+
+        if (totalCount == 0)
+        {
+            return Enumerable.Empty<ProductReviewDto>();
+        }
+
+        var avgRating = (int)await query.AverageAsync(p => p.Rating);
+
+        return await query
+            .Select(p => new ProductReviewDto
+            {
+                ProductReviewId = p.ProductReviewId,
+                ProductId = p.ProductId,
+                ReviewTitle = p.ReviewTitle,
+                ReviewBy = p.ReviewBy,
+                Description = p.Description,
+                ReviewStatus = p.ReviewStatus,
+                Rating = p.Rating,
+                DateCreated = p.DateCreated,
+                TotalReview = totalCount,
+                AvgRating = avgRating
+            })
             .ToListAsync();
-
-        int avgRating = 0;
-        int totalReview = 0;
-        if (lstProductReview.Count > 0)
-        {
-            avgRating = (int)lstProductReview.Average(p => p.Rating);
-            totalReview = lstProductReview.Count;
-        }
-
-        foreach (var pr in lstProductReview)
-        {
-            pr.AvgRating = avgRating;
-            pr.TotalReview = totalReview;
-            pr.PostDate = (DateTime.Now - pr.DateCreated).Days.ToString() + " Days Ago";
-        }
-
-        return lstProductReview;
     }
 
-    /// <summary>
-    /// Retrieves rating counts for a specific product.
     /// <inheritdoc />
-    public async Task<List<ProductReview>> GetProductRatingCountAsync(int productId)
+    public async Task<List<ProductReviewDto>> GetProductRatingCountAsync(int productId)
     {
-        var productReviews = new List<ProductReview>();
-        var command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "SProc_GetProductRateingCount";
-        command.Parameters.Add(new SqlParameter("@ID_Product", SqlDbType.Int) { Value = productId });
+        var results = await _dbContext.Database.SqlQueryRaw<ProductRatingCountSpResult>(
+            "EXEC SProc_GetProductRateingCount @ID_Product",
+            new SqlParameter("@ID_Product", productId)
+        ).ToListAsync();
 
-        await _dbContext.Database.OpenConnectionAsync();
-        using var reader = await command.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
+        return results.Select(r => new ProductReviewDto
         {
-            productReviews.Add(new ProductReview
-            {
-                Rating = Convert.ToInt32(reader["Rating"]),
-                RatingCount = Convert.ToInt32(reader["RatingCount"])
-            });
-        }
-
-        return productReviews;
+            RatingCount = r.RatingCount ?? 0,
+            Rating = r.Rating ?? 0
+        }).ToList();
     }
 
-    /// <summary>
-    /// Retrieves detailed product reviews with various filters and pagination.
     /// <inheritdoc />
-    public async Task<List<ProductReview>> GetProductReviewDetailAsync(int productId, int starOne, int starTwo, int starThree, int starFour, int starFive, int readerSpoiler, int recomendThis, int sortByFilter, int pageNo, int noOfRow, string readerType, string languageType)
+    public async Task<List<ProductReviewDto>> GetProductReviewDetailAsync(int productId, int starOne, int starTwo, int starThree, int starFour, int starFive, int readerSpoiler, int recomendThis, int sortByFilter, int pageNo, int noOfRow, string readerType, string languageType)
     {
-        var productReviews = new List<ProductReview>();
-        var command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "SProc_GetReview";
-        command.Parameters.Add(new SqlParameter("@ID_Product", SqlDbType.Int) { Value = productId });
-        command.Parameters.Add(new SqlParameter("@StarOne", SqlDbType.Int) { Value = starOne });
-        command.Parameters.Add(new SqlParameter("@StarTwo", SqlDbType.Int) { Value = starTwo });
-        command.Parameters.Add(new SqlParameter("@StarThree", SqlDbType.Int) { Value = starThree });
-        command.Parameters.Add(new SqlParameter("@StarFour", SqlDbType.Int) { Value = starFour });
-        command.Parameters.Add(new SqlParameter("@StarFive", SqlDbType.Int) { Value = starFive });
-        command.Parameters.Add(new SqlParameter("@ReaderSpoilers", SqlDbType.Int) { Value = readerSpoiler });
-        command.Parameters.Add(new SqlParameter("@RecomendThis", SqlDbType.Int) { Value = recomendThis });
-        command.Parameters.Add(new SqlParameter("@SortByFilter", SqlDbType.Int) { Value = sortByFilter });
-        command.Parameters.Add(new SqlParameter("@PageNo", SqlDbType.Int) { Value = pageNo });
-        command.Parameters.Add(new SqlParameter("@NoOfRow", SqlDbType.Int) { Value = noOfRow });
-        command.Parameters.Add(new SqlParameter("@Readertype", SqlDbType.VarChar) { Value = (object)readerType ?? DBNull.Value });
-        command.Parameters.Add(new SqlParameter("@LanguageType", SqlDbType.VarChar) { Value = (object)languageType ?? DBNull.Value });
+        var spResults = await _dbContext.Database.SqlQueryRaw<ProductReviewDetailSpResult>(
+            "EXEC SProc_GetReview @ID_Product, @StarOne, @StarTwo, @StarThree, @StarFour, @StarFive, @ReaderSpoilers, @RecomendThis, @SortByFilter, @PageNo, @NoOfRow, @Readertype, @LanguageType",
+            new SqlParameter("@ID_Product", productId),
+            new SqlParameter("@StarOne", starOne),
+            new SqlParameter("@StarTwo", starTwo),
+            new SqlParameter("@StarThree", starThree),
+            new SqlParameter("@StarFour", starFour),
+            new SqlParameter("@StarFive", starFive),
+            new SqlParameter("@ReaderSpoilers", readerSpoiler),
+            new SqlParameter("@RecomendThis", recomendThis),
+            new SqlParameter("@SortByFilter", sortByFilter),
+            new SqlParameter("@PageNo", pageNo),
+            new SqlParameter("@NoOfRow", noOfRow),
+            new SqlParameter("@Readertype", (object)readerType ?? DBNull.Value),
+            new SqlParameter("@LanguageType", (object)languageType ?? DBNull.Value)
+        ).ToListAsync();
 
-        await _dbContext.Database.OpenConnectionAsync();
-        using var reader = await command.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
+        var reviews = spResults.Select(r => new ProductReviewDto
         {
-            var review = new ProductReview
-            {
-                ProductReviewId = Convert.ToInt32(reader["ID_ProductReview"]),
-                TotalRecord = Convert.ToInt32(reader["TotalRecord"]),
-                ReviewBy = reader["User_Name"]?.ToString() ?? string.Empty,
-                UserEmail = reader["Email_Id"]?.ToString() ?? string.Empty,
-                ReaderType = reader["ReaderType"]?.ToString() ?? string.Empty,
-                ReaderSpoiler = reader["ReaderSpoilers"]?.ToString() ?? string.Empty,
-                TotalReview = Convert.ToInt32(reader["TotalReview"]),
-                Vote = Convert.ToInt32(reader["Vote"]),
-                ReviewTags = reader["ReviewTag_Name"]?.ToString() ?? string.Empty,
-                ReviewTitle = reader["Review_Title"]?.ToString() ?? string.Empty,
-                Description = reader["Description"]?.ToString() ?? string.Empty,
-                Rating = Convert.ToInt32(reader["Rating"]),
-                StarFive = Convert.ToInt32(reader["StarFive"]),
-                StarFour = Convert.ToInt32(reader["StarFour"]),
-                CustomerProfileId = Convert.ToInt32(reader["Id_CustProfile"]),
-                RecommendThis = reader["RecomendThis"]?.ToString() ?? string.Empty,
-                PostDate = reader["Date_Created"]?.ToString() ?? string.Empty
-            };
+            ProductReviewId = r.ProductReviewId,
+            TotalRecord = r.TotalRecord ?? 0,
+            ReviewBy = r.ReviewBy ?? string.Empty,
+            UserEmail = r.UserEmail ?? string.Empty,
+            ReaderType = r.ReaderType ?? string.Empty,
+            ReaderSpoiler = r.ReaderSpoiler ?? string.Empty,
+            TotalReview = r.TotalReview ?? 0,
+            Vote = r.Vote ?? 0,
+            ReviewTags = r.ReviewTags ?? string.Empty,
+            ReviewTitle = r.ReviewTitle ?? string.Empty,
+            Description = r.Description ?? string.Empty,
+            Rating = r.Rating ?? 0,
+            StarFive = r.StarFive ?? 0,
+            StarFour = r.StarFour ?? 0,
+            CustomerProfileId = r.CustomerProfileId,
+            RecommendThis = r.RecommendThis ?? string.Empty,
+            DateCreated = r.DateCreated ?? DateTime.MinValue
+        }).ToList();
 
+        foreach (var review in reviews)
+        {
             review.ProductReviewImages = await GetProductReviewImagesAsync(review.ProductReviewId, review.CustomerProfileId);
-            review.ReviewHelpFul = await GetUserVotingAsync(review.CustomerProfileId, productId, review.ProductReviewId) ?? new ReviewHelpFul();
-            productReviews.Add(review);
+            review.ReviewHelpFul = await GetUserVotingAsync(review.CustomerProfileId, productId, review.ProductReviewId) ?? new ReviewHelpFulDto();
         }
 
-        return productReviews;
+        return reviews;
     }
 
-    /// <summary>
-    /// Retrieves reviews posted by a specific user profile.
     /// <inheritdoc />
-    public async Task<List<ProductReview>> GetUserProfileReviewsAsync(int customerProfileId, int pageNo, int noOfRow)
+    public async Task<List<ProductReviewDto>> GetUserProfileReviewsAsync(int customerProfileId, int pageNo, int noOfRow)
     {
-        var productReviews = new List<ProductReview>();
-        var command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "SProc_GetUserReview";
-        command.Parameters.Add(new SqlParameter("@Id_CustProfile", SqlDbType.Int) { Value = customerProfileId });
-        command.Parameters.Add(new SqlParameter("@PageNo", SqlDbType.Int) { Value = pageNo });
-        command.Parameters.Add(new SqlParameter("@NoOfRow", SqlDbType.Int) { Value = noOfRow });
+        var spResults = await _dbContext.Database.SqlQueryRaw<UserProfileReviewSpResult>(
+            "EXEC SProc_GetUserReview @Id_CustProfile, @PageNo, @NoOfRow",
+            new SqlParameter("@Id_CustProfile", customerProfileId),
+            new SqlParameter("@PageNo", pageNo),
+            new SqlParameter("@NoOfRow", noOfRow)
+        ).ToListAsync();
 
-        await _dbContext.Database.OpenConnectionAsync();
-        using var reader = await command.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
+        var reviews = spResults.Select(r => new ProductReviewDto
         {
-            var review = new ProductReview
-            {
-                ReviewBy = reader["User_Name"]?.ToString() ?? string.Empty,
-                UserEmail = reader["Email_Id"]?.ToString() ?? string.Empty,
-                ReaderType = reader["ReaderType"]?.ToString() ?? string.Empty,
-                ReaderSpoiler = reader["ReaderSpoilers"]?.ToString() ?? string.Empty,
-                TotalReview = Convert.ToInt32(reader["TotalReview"]),
-                ReviewTitle = reader["Review_Title"]?.ToString() ?? string.Empty,
-                Description = reader["Description"]?.ToString() ?? string.Empty,
-                Rating = Convert.ToInt32(reader["Rating"]),
-                PostDate = reader["Date_Created"]?.ToString() ?? string.Empty
-            };
+            ProductReviewId = r.ProductReviewId,
+            ProductId = 0,
+            TotalRecord = r.TotalRecord ?? 0,
+            ReviewBy = r.ReviewBy ?? string.Empty,
+            UserEmail = r.UserEmail ?? string.Empty,
+            ReviewTitle = r.ReviewTitle ?? string.Empty,
+            Description = r.Description ?? string.Empty,
+            Rating = r.Rating ?? 0,
+            DateCreated = r.DateCreated ?? DateTime.MinValue
+        }).ToList();
 
-            review.ProductReviewImages = await GetProductReviewImagesAsync(Convert.ToInt32(reader["ID_ProductReview"]), customerProfileId);
-            productReviews.Add(review);
+        foreach (var review in reviews)
+        {
+            review.ProductReviewImages = await GetProductReviewImagesAsync(review.ProductReviewId, customerProfileId);
         }
 
-        return productReviews;
+        return reviews;
     }
 
-    /// <summary>
-    /// Retrieves reader types associated with a product's reviews.
     /// <inheritdoc />
-    public async Task<List<ReviewReaderType>> GetReviewReaderTypeAsync(int productId)
+    public async Task<List<ReviewReaderTypeDto>> GetReviewReaderTypeAsync(int productId)
     {
-        var lst = new List<ReviewReaderType>();
-        var command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "SProc_GetReviewReaderType";
-        command.Parameters.Add(new SqlParameter("@ID_Product", SqlDbType.Int) { Value = productId });
+        var results = await _dbContext.Database.SqlQueryRaw<ProductReviewReaderTypeSpResult>(
+            "EXEC SProc_GetReviewReaderType @ID_Product",
+            new SqlParameter("@ID_Product", productId)
+        ).ToListAsync();
 
-        await _dbContext.Database.OpenConnectionAsync();
-        using var reader = await command.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
+        return results.Select(r => new ReviewReaderTypeDto
         {
-            lst.Add(new ReviewReaderType
-            {
-                ReaderTypeId = Convert.ToInt32(reader["ReviewID"]),
-                ReaderType = reader["ReaderType"]?.ToString() ?? string.Empty
-            });
-        }
-        return lst;
+            ReaderTypeId = r.ReaderTypeId ?? 0,
+            ReaderType = r.ReaderType ?? string.Empty
+        }).ToList();
     }
 
-    /// <summary>
-    /// Retrieves all available review reader types.
     /// <inheritdoc />
-    public async Task<List<ReviewReaderType>> GetAllReviewReaderTypeAsync()
+    public async Task<List<ReviewReaderTypeDto>> GetAllReviewReaderTypeAsync()
     {
-        var lst = new List<ReviewReaderType>();
-        var command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "SP_GetReviewReaderType";
+        var results = await _dbContext.Database.SqlQueryRaw<ReviewReaderTypeSpResult>(
+            "EXEC SP_GetReviewReaderType"
+        ).ToListAsync();
 
-        await _dbContext.Database.OpenConnectionAsync();
-        using var reader = await command.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
+        return results.Select(r => new ReviewReaderTypeDto
         {
-            lst.Add(new ReviewReaderType
-            {
-                ReaderTypeId = Convert.ToInt32(reader["Id"]),
-                ReaderType = reader["ReaderType"]?.ToString() ?? string.Empty
-            });
-        }
-        return lst;
+            ReaderTypeId = r.ReaderTypeId ?? 0,
+            ReaderType = r.ReaderType ?? string.Empty
+        }).ToList();
     }
 
-    /// <summary>
-    /// Retrieves all available review tag names.
     /// <inheritdoc />
-    public async Task<List<ReviewTagName>> GetReviewTagsNameAsync()
+    public async Task<List<ReviewTagNameDto>> GetReviewTagsNameAsync()
     {
-        var lst = new List<ReviewTagName>();
-        var command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "SP_GetReviewTagName";
+        var results = await _dbContext.Database.SqlQueryRaw<ReviewTagNameSpResult>(
+            "EXEC SP_GetReviewTagName"
+        ).ToListAsync();
 
-        await _dbContext.Database.OpenConnectionAsync();
-        using var reader = await command.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
+        return results.Select(r => new ReviewTagNameDto
         {
-            lst.Add(new ReviewTagName
-            {
-                Id = Convert.ToInt32(reader["Id_Tag"]),
-                TagName = reader["ReviewTag_Name"]?.ToString() ?? string.Empty
-            });
-        }
-        return lst;
+            Id = r.Id ?? 0,
+            TagName = r.TagName ?? string.Empty
+        }).ToList();
     }
 
-    /// <summary>
-    /// Records a user's vote on a product review.
     /// <inheritdoc />
-    public async Task<ReviewHelpFul?> TakeUserVotingAsync(int custProfileId, int productId, int productReviewId, string userCookiesId, int votingType)
+    public async Task<ReviewHelpFulDto?> TakeUserVotingAsync(int custProfileId, int productId, int productReviewId, string userCookiesId, int votingType)
     {
-        ReviewHelpFul? reviewHelpFul = null;
-        var command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "SProc_InsertReviewVoting";
-        command.Parameters.Add(new SqlParameter("@CustomerID", SqlDbType.Int) { Value = custProfileId });
-        command.Parameters.Add(new SqlParameter("@ID_Product", SqlDbType.Int) { Value = productId });
-        command.Parameters.Add(new SqlParameter("@ProductReviewID", SqlDbType.Int) { Value = productReviewId });
-        command.Parameters.Add(new SqlParameter("@UserIDinCookies", SqlDbType.VarChar) { Value = (object)userCookiesId ?? DBNull.Value });
-        command.Parameters.Add(new SqlParameter("@Votingtype", SqlDbType.Int) { Value = votingType });
-
-        await _dbContext.Database.OpenConnectionAsync();
-        using var reader = await command.ExecuteReaderAsync();
-        if (await reader.ReadAsync())
+        var results = await _dbContext.Database.SqlQueryRaw<ReviewHelpFulSpResult>(
+            "EXEC SProc_InsertReviewVoting @CustomerID, @ID_Product, @ProductReviewID, @UserIDinCookies, @Votingtype",
+            new SqlParameter("@CustomerID", custProfileId),
+            new SqlParameter("@ID_Product", productId),
+            new SqlParameter("@ProductReviewID", productReviewId),
+            new SqlParameter("@UserIDinCookies", (object)userCookiesId ?? DBNull.Value),
+            new SqlParameter("@Votingtype", votingType)
+        ).ToListAsync();
+        
+        var r = results.FirstOrDefault();
+        if (r == null) return null;
+        
+        return new ReviewHelpFulDto
         {
-            reviewHelpFul = new ReviewHelpFul
-            {
-                Helpful = Convert.ToInt32(reader["Helpful"]),
-                NotHelpFul = Convert.ToInt32(reader["NotHelpFul"]),
-                Reported = Convert.ToInt32(reader["Reported"])
-            };
-        }
-        return reviewHelpFul;
+            ReviewHelpId = 0,
+            Helpful = r.Helpful ?? 0,
+            NotHelpFul = r.NotHelpFul ?? 0,
+            Reported = r.Reported ?? 0
+        };
     }
 
-    // Helper methods internally
-    /// <summary>
-    /// Retrieves images for a specific product review.
-    /// </summary>
-    /// <param name="productReviewId">The unique identifier of the product review.</param>
-    /// <param name="customerProfileId">The unique identifier of the customer profile.</param>
-    /// <returns>A list of product review images.</returns>
-    private async Task<List<ProductReviewImage>> GetProductReviewImagesAsync(long productReviewId, int customerProfileId)
+    private async Task<List<ProductReviewImageDto>> GetProductReviewImagesAsync(long productReviewId, int customerProfileId)
     {
-        var images = new List<ProductReviewImage>();
-        var command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "SProc_GetProdReviewImage";
-        command.Parameters.Add(new SqlParameter("@ID_ProductReview", SqlDbType.Int) { Value = productReviewId });
-        command.Parameters.Add(new SqlParameter("@Id_CustProfile", SqlDbType.Int) { Value = customerProfileId });
+        var results = await _dbContext.Database.SqlQueryRaw<ProductReviewImageSpResult>(
+            "EXEC SProc_GetProdReviewImage @ID_ProductReview, @Id_CustProfile",
+            new SqlParameter("@ID_ProductReview", productReviewId),
+            new SqlParameter("@Id_CustProfile", customerProfileId)
+        ).ToListAsync();
 
-        await _dbContext.Database.OpenConnectionAsync(); // Should be fine as long as MARS is enabled, or we await it correctly. 
-        using var reader = await command.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
+        return results.Select(r => new ProductReviewImageDto
         {
-            images.Add(new ProductReviewImage
-            {
-                ProductReviewId = Convert.ToInt32(reader["ID_ProductReview"]),
-                ImageCaption = reader["ImgCaption"]?.ToString() ?? string.Empty,
-                ImageLocation = reader["Image_Location"]?.ToString() ?? string.Empty
-            });
-        }
-        return images;
+            ProductReviewId = r.ProductReviewId ?? 0,
+            ImageLocation = r.ImageLocation ?? string.Empty,
+            ImageCaption = r.ImageCaption ?? string.Empty
+        }).ToList();
     }
 
-    /// <summary>
-    /// Retrieves a user's voting status for a specific review.
-    /// </summary>
-    /// <param name="custProfileId">The unique identifier of the customer profile.</param>
-    /// <param name="productId">The unique identifier of the product.</param>
-    /// <param name="productReviewId">The unique identifier of the product review.</param>
-    /// <returns>The helpfulness status for the review.</returns>
-    private async Task<ReviewHelpFul?> GetUserVotingAsync(int custProfileId, int productId, int productReviewId)
+    private async Task<ReviewHelpFulDto?> GetUserVotingAsync(int custProfileId, int productId, int productReviewId)
     {
-        var command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "SProc_GetReviewVoting";
-        command.Parameters.Add(new SqlParameter("@CustomerID", SqlDbType.Int) { Value = custProfileId });
-        command.Parameters.Add(new SqlParameter("@ID_Product", SqlDbType.Int) { Value = productId });
-        command.Parameters.Add(new SqlParameter("@ProductReviewID", SqlDbType.Int) { Value = productReviewId });
-
-        await _dbContext.Database.OpenConnectionAsync();
-        using var reader = await command.ExecuteReaderAsync();
-        if (await reader.ReadAsync())
+        var results = await _dbContext.Database.SqlQueryRaw<ReviewHelpFulSpResult>(
+            "EXEC SProc_GetReviewVoting @CustomerID, @ID_Product, @ProductReviewID",
+            new SqlParameter("@CustomerID", custProfileId),
+            new SqlParameter("@ID_Product", productId),
+            new SqlParameter("@ProductReviewID", productReviewId)
+        ).ToListAsync();
+        
+        var r = results.FirstOrDefault();
+        if (r == null) return null;
+        
+        return new ReviewHelpFulDto
         {
-            return new ReviewHelpFul
-            {
-                Helpful = Convert.ToInt32(reader["Helpful"]),
-                NotHelpFul = Convert.ToInt32(reader["NotHelpFul"]),
-                Reported = Convert.ToInt32(reader["Reported"])
-            };
-        }
-        return null;
+            ReviewHelpId = 0,
+            Helpful = r.Helpful ?? 0,
+            NotHelpFul = r.NotHelpFul ?? 0,
+            Reported = r.Reported ?? 0
+        };
     }
 
-    /// <summary>
-    /// Adds a new product review along with tags and images using legacy stored procedures.
     /// <inheritdoc />
-    public async Task<int> AddProductReviewAsync(ProductReview productReview)
+    public async Task<int> AddProductReviewAsync(ProductReviewInputDto request)
     {
         try
         {
-            int custProfileId = await GetReviewUserProfileAsync(productReview.UserEmail, 0);
+            int custProfileId = await GetReviewUserProfileAsync(request.UserEmail, 0);
             if (custProfileId == 0)
             {
                 custProfileId = await AddReviewUserProfileAsync(
-                    productReview.ProductId, 
-                    productReview.ReviewBy, 
+                    request.ProductId, 
+                    request.ReviewBy, 
                     string.Empty, 
-                    productReview.UserEmail, 
+                    request.UserEmail, 
                     string.Empty, 
-                    productReview.RecommendThis == "Yes", 
-                    int.TryParse(productReview.ReaderType, out int rt) ? rt : 0
+                    request.RecommendThis == "Yes", 
+                    int.TryParse(request.ReaderType, out int rt) ? rt : 0
                 );
             }
 
-            // Check if customer already has a review for this product
-            if (await CheckForUserProductReviewAsync(custProfileId, productReview.ProductId))
+            if (await CheckForUserProductReviewAsync(custProfileId, request.ProductId))
             {
                 return 0;
             }
 
-            // Insert product review
             int productReviewId = 0;
-            var command = _dbContext.Database.GetDbConnection().CreateCommand();
-            command.CommandType = CommandType.StoredProcedure;
-            command.CommandText = "SProc_AddProductReviewNew";
-            command.Parameters.Add(new SqlParameter("@ID_Product", SqlDbType.Int) { Value = productReview.ProductId });
-            command.Parameters.Add(new SqlParameter("@Review_Title", SqlDbType.VarChar) { Value = productReview.ReviewTitle });
-            command.Parameters.Add(new SqlParameter("@Description", SqlDbType.VarChar) { Value = productReview.Description });
-            command.Parameters.Add(new SqlParameter("@ReviewBy", SqlDbType.VarChar) { Value = productReview.ReviewBy });
-            command.Parameters.Add(new SqlParameter("@Status", SqlDbType.Int) { Value = productReview.ReviewStatus });
-            command.Parameters.Add(new SqlParameter("@Rating", SqlDbType.Int) { Value = productReview.Rating });
-            command.Parameters.Add(new SqlParameter("@Id_CustProfile", SqlDbType.Int) { Value = custProfileId });
-            command.Parameters.Add(new SqlParameter("@RecomendThis", SqlDbType.Bit) { Value = productReview.RecommendThis == "Yes" });
-            command.Parameters.Add(new SqlParameter("@ReaderType", SqlDbType.Int) { Value = int.TryParse(productReview.ReaderType, out int rType) ? rType : 0 });
-            command.Parameters.Add(new SqlParameter("@ReaderSpoilers", SqlDbType.Int) { Value = productReview.ReaderSpoiler == "Yes" ? 1 : 0 });
+            var scalarResult = await _dbContext.Database.SqlQueryRaw<int>(
+                "EXEC SProc_AddProductReviewNew @ID_Product, @Review_Title, @Description, @ReviewBy, @Status, @Rating, @Id_CustProfile, @RecomendThis, @ReaderType, @ReaderSpoilers",
+                new SqlParameter("@ID_Product", request.ProductId),
+                new SqlParameter("@Review_Title", request.ReviewTitle),
+                new SqlParameter("@Description", request.Description),
+                new SqlParameter("@ReviewBy", request.ReviewBy),
+                new SqlParameter("@Status", request.ReviewStatus),
+                new SqlParameter("@Rating", request.Rating),
+                new SqlParameter("@Id_CustProfile", custProfileId),
+                new SqlParameter("@RecomendThis", request.RecommendThis == "Yes"),
+                new SqlParameter("@ReaderType", int.TryParse(request.ReaderType, out int rType) ? rType : 0),
+                new SqlParameter("@ReaderSpoilers", request.ReaderSpoiler == "Yes" ? 1 : 0)
+            ).ToListAsync();
 
-            await _dbContext.Database.OpenConnectionAsync();
-            var scalarResult = await command.ExecuteScalarAsync();
-            if (scalarResult != null)
+            if (scalarResult.Any())
             {
-                productReviewId = Convert.ToInt32(scalarResult);
+                productReviewId = scalarResult.First();
             }
-            productReview.ProductReviewId = productReviewId;
 
-            // Add review tags
-            if (productReview.ReviewTagNames != null)
+            if (request.ReviewTagNames != null && productReviewId > 0)
             {
-                foreach (var reviewTag in productReview.ReviewTagNames)
+                foreach (var reviewTag in request.ReviewTagNames)
                 {
-                    await AddReviewTagUserAsync(productReview.ProductId, productReview.ProductReviewId, custProfileId, reviewTag.Id);
+                    await AddReviewTagUserAsync(request.ProductId, productReviewId, custProfileId, reviewTag.Id);
                 }
             }
 
-            // Add review images
-            if (productReview.ProductReviewImages != null)
+            if (request.ProductReviewImages != null && productReviewId > 0)
             {
-                foreach (var reviewImage in productReview.ProductReviewImages)
+                foreach (var reviewImage in request.ProductReviewImages)
                 {
-                    await AddReviewImageAsync(productReview.ProductId, productReview.ProductReviewId, custProfileId, reviewImage.ImageLocation, reviewImage.ImageCaption);
+                    await AddReviewImageAsync(request.ProductId, productReviewId, custProfileId, reviewImage.ImageLocation, reviewImage.ImageCaption);
                 }
             }
 
-            return productReview.ProductReviewId;
+            return productReviewId;
         }
         catch (Exception)
         {
@@ -398,79 +318,62 @@ public class ProductReviewRepository(ProductDbContext dbContext) : IProductRevie
 
     private async Task<int> GetReviewUserProfileAsync(string custProfileEmail, int custProfileId)
     {
-        var command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "Sproc_GetReviewUserProfile";
-        command.Parameters.Add(new SqlParameter("@Email_ID", SqlDbType.VarChar) { Value = custProfileEmail });
-        command.Parameters.Add(new SqlParameter("@Id_CustProfile", SqlDbType.Int) { Value = custProfileId });
-
-        await _dbContext.Database.OpenConnectionAsync();
-        using var reader = await command.ExecuteReaderAsync();
-        if (await reader.ReadAsync())
-        {
-            return Convert.ToInt32(reader["Id_CustProfile"]);
-        }
-        return custProfileId;
+        var results = await _dbContext.Database.SqlQueryRaw<int>(
+            "EXEC Sproc_GetReviewUserProfile @Email_ID, @Id_CustProfile",
+            new SqlParameter("@Email_ID", custProfileEmail),
+            new SqlParameter("@Id_CustProfile", custProfileId)
+        ).ToListAsync();
+        
+        return results.FirstOrDefault(custProfileId);
     }
 
     private async Task<int> AddReviewUserProfileAsync(long productId, string userName, string userImageLoc, string userEmail, string location, bool recommendThis, int readerTypeId)
     {
-        var command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "Sproc_InsertReviewUserProfile";
-        command.Parameters.Add(new SqlParameter("@ID_Product", SqlDbType.Int) { Value = productId });
-        command.Parameters.Add(new SqlParameter("@User_Name", SqlDbType.VarChar) { Value = userName });
-        command.Parameters.Add(new SqlParameter("@UserImgLoc", SqlDbType.VarChar) { Value = userImageLoc });
-        command.Parameters.Add(new SqlParameter("@Email_ID", SqlDbType.VarChar) { Value = userEmail });
-        command.Parameters.Add(new SqlParameter("@location", SqlDbType.VarChar) { Value = location });
-        command.Parameters.Add(new SqlParameter("@RecomendThis", SqlDbType.Bit) { Value = recommendThis });
-        command.Parameters.Add(new SqlParameter("@Id_ReaderType", SqlDbType.Int) { Value = readerTypeId });
-
-        await _dbContext.Database.OpenConnectionAsync();
-        var scalarResult = await command.ExecuteScalarAsync();
-        return scalarResult != null ? Convert.ToInt32(scalarResult) : 0;
+        var results = await _dbContext.Database.SqlQueryRaw<int>(
+            "EXEC Sproc_InsertReviewUserProfile @ID_Product, @User_Name, @UserImgLoc, @Email_ID, @location, @RecomendThis, @Id_ReaderType",
+            new SqlParameter("@ID_Product", productId),
+            new SqlParameter("@User_Name", userName),
+            new SqlParameter("@UserImgLoc", userImageLoc),
+            new SqlParameter("@Email_ID", userEmail),
+            new SqlParameter("@location", location),
+            new SqlParameter("@RecomendThis", recommendThis),
+            new SqlParameter("@Id_ReaderType", readerTypeId)
+        ).ToListAsync();
+        
+        return results.FirstOrDefault();
     }
 
     private async Task<bool> CheckForUserProductReviewAsync(int custProfileId, long productId)
     {
-        var command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "SProc_AllReadySubmitReview";
-        command.Parameters.Add(new SqlParameter("@Id_CustProfile", SqlDbType.Int) { Value = custProfileId });
-        command.Parameters.Add(new SqlParameter("@ID_Product", SqlDbType.BigInt) { Value = productId });
-
-        await _dbContext.Database.OpenConnectionAsync();
-        var scalarResult = await command.ExecuteScalarAsync();
-        int reviewCount = scalarResult != null ? Convert.ToInt32(scalarResult) : 0;
-        return reviewCount > 0;
+        var results = await _dbContext.Database.SqlQueryRaw<int>(
+            "EXEC SProc_AllReadySubmitReview @Id_CustProfile, @ID_Product",
+            new SqlParameter("@Id_CustProfile", custProfileId),
+            new SqlParameter("@ID_Product", productId)
+        ).ToListAsync();
+        
+        return results.FirstOrDefault() > 0;
     }
 
     private async Task AddReviewTagUserAsync(long productId, int productReviewId, int customerId, int reviewTagId)
     {
-        var command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "SProc_AddReviewTagUser";
-        command.Parameters.Add(new SqlParameter("@Id_CustProfile", SqlDbType.Int) { Value = customerId });
-        command.Parameters.Add(new SqlParameter("@Id_Tag", SqlDbType.Int) { Value = reviewTagId });
-        command.Parameters.Add(new SqlParameter("@ID_ProductReview", SqlDbType.Int) { Value = productReviewId });
-        command.Parameters.Add(new SqlParameter("@ID_Product", SqlDbType.Int) { Value = productId });
-
-        await _dbContext.Database.OpenConnectionAsync();
-        await command.ExecuteNonQueryAsync();
+        await _dbContext.Database.ExecuteSqlRawAsync(
+            "EXEC SProc_AddReviewTagUser @Id_CustProfile, @Id_Tag, @ID_ProductReview, @ID_Product",
+            new SqlParameter("@Id_CustProfile", customerId),
+            new SqlParameter("@Id_Tag", reviewTagId),
+            new SqlParameter("@ID_ProductReview", productReviewId),
+            new SqlParameter("@ID_Product", productId)
+        );
     }
 
     private async Task AddReviewImageAsync(long productId, int productReviewId, int customerId, string imageLocation, string imgCaption)
     {
-        var command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "SProc_AddProductReviewImage";
-        command.Parameters.Add(new SqlParameter("@ID_Product", SqlDbType.Int) { Value = productId });
-        command.Parameters.Add(new SqlParameter("@ID_ProductReview", SqlDbType.Int) { Value = productReviewId });
-        command.Parameters.Add(new SqlParameter("@ID_Customer", SqlDbType.Int) { Value = customerId });
-        command.Parameters.Add(new SqlParameter("@Image_Location", SqlDbType.VarChar) { Value = imageLocation });
-        command.Parameters.Add(new SqlParameter("@ImgCaption", SqlDbType.VarChar) { Value = imgCaption });
-
-        await _dbContext.Database.OpenConnectionAsync();
-        await command.ExecuteNonQueryAsync();
+        await _dbContext.Database.ExecuteSqlRawAsync(
+            "EXEC SProc_AddProductReviewImage @ID_Product, @ID_ProductReview, @ID_Customer, @Image_Location, @ImgCaption",
+            new SqlParameter("@ID_Product", productId),
+            new SqlParameter("@ID_ProductReview", productReviewId),
+            new SqlParameter("@ID_Customer", customerId),
+            new SqlParameter("@Image_Location", imageLocation),
+            new SqlParameter("@ImgCaption", imgCaption)
+        );
     }
 }

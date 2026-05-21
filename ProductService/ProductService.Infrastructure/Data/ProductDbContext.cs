@@ -9,10 +9,7 @@ namespace ProductService.Infrastructure.Data;
 public class ProductDbContext(DbContextOptions<ProductDbContext> options) : DbContext(options)
 {
     public DbSet<ProductReview> ProductReviews { get; set; }
-    public DbSet<ProductReviewImage> ProductReviewImages { get; set; }
-    public DbSet<ReviewHelpFul> ReviewHelpFuls { get; set; }
-    public DbSet<ReviewReaderType> ReviewReaderTypes { get; set; }
-    public DbSet<ReviewTagName> ReviewTagNames { get; set; }
+
 
     /// <summary>
     /// Configures the model mapping using the model builder.
