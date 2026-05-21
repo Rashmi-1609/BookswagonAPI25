@@ -3,7 +3,6 @@ using ProductService.Api.GraphQL.Queries;
 using ProductService.Api.GraphQL.Mutations;
 using ProductService.Api.GraphQL.Types;
 using ProductService.Application.Interfaces;
-using ProductService.Domain.Interfaces;
 using ProductService.Application.Services;
 using ProductService.Infrastructure.Data;
 using ProductService.Infrastructure.Data.Repositories;

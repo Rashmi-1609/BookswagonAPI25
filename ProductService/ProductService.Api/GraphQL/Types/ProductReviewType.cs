@@ -19,7 +19,7 @@ public class ProductReviewType : ObjectType<ProductReviewDto>
         descriptor.Field(p => p.Rating).Type<IntType>();
         descriptor.Field(p => p.AvgRating).Type<IntType>();
         descriptor.Field(p => p.TotalReview).Type<IntType>();
-        descriptor.Field(p => p.PostDate).Type<StringType>();
+        descriptor.Field(p => p.DateCreated).Type<DateTimeType>();
         descriptor.Field(p => p.RatingCount).Type<IntType>();
         descriptor.Field(p => p.ReaderType).Type<StringType>();
         descriptor.Field(p => p.UserEmail).Type<StringType>();
